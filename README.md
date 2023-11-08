@@ -11,3 +11,76 @@ To extend the complexity of our project, we plan to make it possible for multipl
 ## Libraries
 
 We plan to use Cohttp in order to pull data down from the dictionary API. 
+
+## Mock Use
+
+We are using the > symbol to denote what the user is inputting in the app
+
+```
+$ ./boggle.exe --num-players 2 --time-limit 180
+
+During your turn, the following commands can be used
+
+- !done : end turn early
+- !hint : obtain a hint
+
++---+---+---+---+
+| I | T | P | E |
++---+---+---+---+
+| R | M | A | Y |
++---+---+---+---+
+| S | R | E | H |
++---+---+---+---+
+| T | U | B | N |
++---+---+---+---+
+
+Enter Player 1s Words (type !done to end turn):
+Hit enter to start
+>
+You have 3m0s to find as many words as possible
+> pet
+> tube
+> hay
+> tamers
+> rim
+> !
+
+Enter Player 2s Words (type !done to end turn):
+Hit enter to start
+>
+You have 3m0s to find as many words as possible
+> timer
+> yhn
+> may
+> !hint
+    a long, hollow cylinder
+> tube
+    You got the hint!
+
+Your time has run up!
+
+Player 1 Wins!
+
+Player 1 Score: 5
+- pet       (invalid)
+- tube      (duplicate)
+- hay       (1)
+- tamers    (3)
+- rim       (1)
+
+Player 2 Score: 3
+- tube      (duplicate)
+- timer     (2)
+- yhn       (invalid)
+- may       (1)
+
+Players found 6 words out of 299 words for 9 points out of 425.
+Here are some of the top scoring words:
+- IMPARTS
+- SURBEAT
+- TRIMERA
+...
+```
+
+## Implementation Order
+
