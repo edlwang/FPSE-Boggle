@@ -4,7 +4,23 @@ An implementation of Boggle for the Functional Programming in Software Engineeri
 
 ## Overview
 
-In this project, we implement the game Boggle in OCaml. Boggle is a game where players are presented with a grid of letters and words must be formed by sequences of letters that are connected to each other. We plan on implementing the functionality of playing Boggle using dictionary APIs (Merriam-Webster) to check if words are valid as well as solvers for the game to find all possible words in a Boggle grid. This will be done using a data structure to hold all possible words (trie) and implement a non-trivial search algorithm on the game board. 
+In this project, we implement the game Boggle in OCaml. Boggle is a game where players are presented with a grid of letters and words must be formed by sequences of letters that are connected to each other without using the same letter position twice. For example, if we have the following board:
+
+```
++---+---+---+---+
+| I | T | P | E |
++---+---+---+---+
+| R | M | A | Y |
++---+---+---+---+
+| S | R | E | H |
++---+---+---+---+
+| T | U | B | N |
++---+---+---+---+
+```
+
+One word that could be solved for is ARM because all the letters are next to each other sequentially. An invalid word would be REAR since we use the same R twice in the word. The goal of the game is to find as many words as possible on the board, scoring points based on the length of the word.
+
+We plan on implementing the functionality of playing Boggle using dictionary APIs (Merriam-Webster) to check if words are valid as well as solvers for the game to find all possible words in a Boggle grid. This will be done using a data structure to hold all possible words (trie) and implement a non-trivial search algorithm on the game board. 
 
 To extend the complexity of our project, we plan to make it possible for multiple players to compete to see who gets the most words possible and implement automatic scoring. We also want to allow users to ask for different types of hints for words that they haven't gotten yet (starts with this letter, look at this part of the board, this word's definition is _, etc). We could also control the generation of the board using more complicated methods such as using N-grams or English letter distributions to make the board more playable. 
 
@@ -18,6 +34,10 @@ We are using the > symbol to denote what the user is inputting in the app
 
 ```
 $ ./boggle.exe --num-players 2 --time-limit 180
+
+--------------------------------------------------
+------------ Game Start Instructions -------------
+--------------------------------------------------
 
 During your turn, the following commands can be used
 
@@ -33,6 +53,10 @@ During your turn, the following commands can be used
 +---+---+---+---+
 | T | U | B | N |
 +---+---+---+---+
+
+--------------------------------------------------
+------------------ User Gameplay -----------------
+--------------------------------------------------
 
 Enter Player 1s Words (type !done to end turn):
 Hit enter to start
@@ -56,6 +80,10 @@ You have 3m0s to find as many words as possible
     a long, hollow cylinder
 > tube
     You got the hint!
+
+--------------------------------------------------
+------------ Final Results and Scoring -----------
+--------------------------------------------------
 
 Your time has run up!
 
@@ -84,3 +112,7 @@ Here are some of the top scoring words:
 
 ## Implementation Order
 
+Reach Goals:
+- Server running the game with two players connecting through terminal to play at the same time
+- Frontend using ReScript
+- Use different language dictionaries to generate the boards
