@@ -18,7 +18,7 @@ In this project, we implement the game Boggle in OCaml. Boggle is a game where p
 +---+---+---+---+
 ```
 
-One word that could be solved for is ARM because all the letters are next to each other sequentially. An invalid word would be REAR since we use the same R twice in the word. The goal of the game is to find as many words as possible on the board, scoring points based on the length of the word.
+One word that could be solved for is ARM because all the letters are next to each other sequentially. An invalid word would be REAR since we use the same R twice in the word. The goal of the game is to find as many words as possible on the board, scoring points based on the length of the word. If multiple players get the same word, then those points cancel out and do not contribute to the players' scores. Only words that the player uniquely gets counts towards the score. The player with the most points wins.
 
 We plan on implementing the functionality of playing Boggle using dictionary APIs (Merriam-Webster) to check if words are valid as well as solvers for the game to find all possible words in a Boggle grid. This will be done using a data structure to hold all possible words (trie) and implement a non-trivial search algorithm on the game board. 
 
