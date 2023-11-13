@@ -22,35 +22,11 @@
 *)
 
 
-module Trie: sig
-  type t
-  val insert: t -> string -> t
-  val is_word: t -> string -> bool
-end
-
-module Boggle: sig
-  type t
-  val create_board: ?board: string -> int -> t
-  val solve: t -> string list (* find all words *)
-  val get_hint: 
-  val compute_scores
-end
-
-module Game : sig (* functor with parameters (time, size, players) *)
-  val start_game
-  val add_word
-  val end_game
-end
-
-module Dictionary: sig
-  val get_all_words
-  val get_definitions
-end
-
 module Ngram: sig
-  val make_distribution
-  val get_random
-  val get_next
+  type t
+  val make_distribution: string list -> t
+  val get_random: t -> string
+  val get_next: string -> string
 end
 
 
