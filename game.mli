@@ -1,3 +1,7 @@
+(* 
+  Make_game functor takes in a parametrized module with a player number and time limit 
+   to create a game module with an appropriate "run" function
+*)
 module type Game = sig
   val run: unit -> unit
 end
