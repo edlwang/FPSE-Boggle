@@ -1,7 +1,8 @@
+(* This module implements a representation of a Boggle board and the functions that would be associated with a Boggle board*)
 module Boggle: sig
-  type t
-  val create_board: ?board: string -> int -> t
-  val solve: t -> string list (* find all words *)
-  val get_hint: string list -> string
-  val compute_scores: string list list -> (int * string list) list
+  type t (* the type of a Boggle board; likely a functional array *)
+  val create_board: ?board: string -> int -> t (* Generates a board by weighting characters in the English language and then using bigrams*)
+  val solve: t -> string list (* find all words on the board *)
+  val get_hint: string list -> (string * string) (* given a list of words the user has already found, returns a pair of strings representing a new word and the hint for it*)
+  val compute_scores: string list list -> (int * string list) list (* given a list of list of user inputs, compute the score for each player and an explanation of the scoring for each word*)
 end
