@@ -111,6 +111,19 @@ Here are some of the top scoring words:
 ```
 
 ## Implementation Order
+Libraries (+ unit tests):
+- Trie - Mason
+- Ngram - Edward
+- Dictionary - Edward
+- Boggle - Mason, Edward
+- Game - Mason, Edward
+
+Game:
+- Command line parsing - Edward
+- Print game information - Mason
+- User IO (commands and user input) - Edward
+At this point the game should be fully functional without async waiting/timer part
+- Asynchronous waiting - Mason
 
 Reach Goals:
 - Server running the game with two players connecting through terminal to play at the same time
