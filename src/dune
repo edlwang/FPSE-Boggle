@@ -1,0 +1,24 @@
+; (library
+;  (name boggle)
+;  (modules boggle)
+;  (libraries core))
+
+; (library
+;  (name dictionary)
+;  (modules dictionary)
+;  (libraries core))
+
+; (library
+;  (name game)
+;  (modules game)
+;  (libraries core))
+
+; (library
+;  (name ngram)
+;  (modules ngram)
+;  (libraries core))
+
+; (library
+;  (name trie)
+;  (modules trie)
+;  (libraries core))
