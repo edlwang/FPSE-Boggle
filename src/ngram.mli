@@ -15,7 +15,7 @@ module Ngram: sig
   type t (* the map holding the distribution *)
   val make_distribution: string list -> t (* generate the distribution from a list of strings *)
   val get_random: t -> char (* get single letter weighted by frequency in the english language *)
-  val get_next: char -> char (* get a random second letter in the bigram given the prefix, weighted by frequency *)
+  val get_next: t -> char -> char (* get a random second letter in the bigram given the prefix, weighted by frequency *)
 end
 
 
