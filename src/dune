@@ -3,10 +3,10 @@
 ;  (modules boggle)
 ;  (libraries core))
 
-; (library
-;  (name dictionary)
-;  (modules dictionary)
-;  (libraries core))
+(library
+ (name dictionary)
+ (modules dictionary)
+ (libraries core cohttp cohttp-lwt-unix lwt yojson))
 
 ; (library
 ;  (name game)
