@@ -1,7 +1,7 @@
-; (library
-;  (name boggle)
-;  (modules boggle)
-;  (libraries core))
+(library
+ (name boggle)
+ (modules boggle)
+ (libraries core ngram))
 
 ; (library
 ;  (name dictionary)
