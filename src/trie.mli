@@ -16,8 +16,6 @@
 
 *)
 module Trie: sig
-  (* module CharMap = Map.Make(Char) *)
-  (* type t = {is_word: bool; children: (char, t, Core.Map.Make(Core.Char).Key.comparator_witness) Core.Map.t }Trie data type, likely a record like { is_word: bool; children: (char, t, char_cmp) Map.t } [@@deriving sexp] *)
   type t
   val empty: unit -> t (* Create empty trie *)
   val insert: t -> word:string -> t (* Inserts a word into the trie *)

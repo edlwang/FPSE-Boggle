@@ -15,15 +15,8 @@ module Trie = struct
       | [] -> {is_word=true; children=trie.children}
       | c :: tl -> 
         let next = match get_child trie c with | Some next -> next | None -> {is_word=false; children=CharMap.empty} in 
-        (* (match get_child trie c with 
-        | Some next ->  *)
         let children = Map.set trie.children ~key:c ~data:(helper next tl) in
         {is_word=trie.is_word; children}
-        (* | None -> 
-          let next = {is_word=false; children=CharMap.empty} in
-          let children = Map.add_exn trie.children ~key:c ~data:(helper next tl) in 
-          {is_word=trie.is_word; children}
-        )  *)
     in helper trie @@ String.to_list word (* call helper *)
 
   let is_word (trie: t) ~(word: string) : bool = 
