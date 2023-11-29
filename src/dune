@@ -13,10 +13,10 @@
 ;  (modules game)
 ;  (libraries core))
 
-; (library
-;  (name ngram)
-;  (modules ngram)
-;  (libraries core))
+(library
+ (name ngram)
+ (modules ngram)
+ (libraries core))
 
 (library
  (name trie)
