@@ -18,7 +18,7 @@
 ;  (modules ngram)
 ;  (libraries core))
 
-; (library
-;  (name trie)
-;  (modules trie)
-;  (libraries core))
+(library
+ (name trie)
+ (modules trie)
+ (libraries core))

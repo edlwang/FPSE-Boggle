@@ -16,8 +16,9 @@
 
 *)
 module Trie: sig
-  type t (* Trie data type, likely a record like { is_word: bool; children: (char, t, char_cmp) Map.t } *)
-  val insert: t -> string -> t (* Inserts a word into the trie *)
-  val is_word: t -> string -> bool (* Check if a given word exists in the trie *)
+  type t
+  val empty: unit -> t (* Create empty trie *)
+  val insert: t -> word:string -> t (* Inserts a word into the trie *)
+  val is_word: t -> word:string -> bool (* Check if a given word exists in the trie *)
   val get_child: t -> char -> t option (* return the child of the root node that char maps to (wrapped in Some) if it exists, else None *)
 end
