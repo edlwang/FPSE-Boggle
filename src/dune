@@ -8,10 +8,10 @@
  (modules dictionary)
  (libraries core cohttp cohttp-lwt-unix lwt yojson core_unix.sys_unix))
 
-; (library
-;  (name game)
-;  (modules game)
-;  (libraries core))
+(library
+ (name game)
+ (modules game)
+ (libraries core stdio))
 
 (library
  (name ngram)
@@ -22,3 +22,9 @@
  (name trie)
  (modules trie)
  (libraries core))
+
+(executable 
+ (name aplusproject)
+ (modules aplusproject)
+ (preprocess (pps ppx_jane))
+ (libraries core game core_unix.command_unix))
