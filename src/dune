@@ -6,7 +6,7 @@
 (library
  (name dictionary)
  (modules dictionary)
- (libraries core cohttp cohttp-lwt-unix lwt yojson))
+ (libraries core cohttp cohttp-lwt-unix lwt yojson core_unix.sys_unix))
 
 ; (library
 ;  (name game)

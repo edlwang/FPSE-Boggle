@@ -4,7 +4,10 @@ open Cohttp
 open Cohttp_lwt_unix
 
 module Dictionary = struct
-  let get_all_words _ = []
+  let get_all_words (filepath : string) = 
+    match Sys_unix.file_exists filepath, Sys_unix.is_directory filepath with
+    | `Yes, `No -> In_channel.read_lines filepath
+    | _ -> []
 
   let get_definition (word : string) : string option =
     let call =
