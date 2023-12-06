@@ -3,11 +3,15 @@ open Ngram
 open Trie
 
 module Boggle = struct
+  module Pair = struct
+    type t = (int * int) [@@deriving compare, sexp]
+  end
+  module Pair_set = Set.Make_plain (Pair)
+  module String_set = Set.Make (String)
+
   type t = char array array [@@deriving sexp]
   
   let create_board ?(board: string = "") (size: int) : t = 
-
-
     let len = String.length board in
     if len <> 0 && len <> (size * size) then failwith "Board not valid for desired size"
     else 
@@ -27,29 +31,34 @@ module Boggle = struct
       let f i row = Array.iteri row ~f: (fun j _ -> row.(j) <- next_char i j) in
       Array.iteri board ~f;
       board
-    
 
   (* Possibly add more efficient search, removing found words from search space *)
   let solve (board: t) (dict: Trie.t): string list = 
+    (* let type int_pair = (int * int) [@@deriving compare, sexp] *)
     (* let dirs = [(1,0); (-1,0); (0,1); (0,-1)] in *)
     let num_rows, num_cols = Array.length board, Array.length board.(0) in
-    let rec dfs (cur: char list) (words: string list) (dict: Trie.t) (visit: (int * int) Hash_set.t) (row: int) (col: int) = 
-      if row < 0 || row >= num_rows || col < 0 || col >= num_cols (* || (row, col) in visit *) then words
+    let rec dfs (cur: char list) (words: String_set.t) (dict: Trie.t) (visit: Pair_set.t) (row: int) (col: int) = 
+      if row < 0 || row >= num_rows || col < 0 || col >= num_cols || Set.mem visit (row, col) then words
       else 
         let ch = board.(row).(col) in
         match Trie.get_child dict ch with
         | None -> words
         | Some node -> 
-          Hash_set.add visit (row, col);
+          let visit = Set.add visit (row, col) in
           let cur = ch :: cur in
           let words = 
             if Trie.is_endpoint node then 
               let word = cur |> List.rev |> String.of_list in
-              word :: words
+              Set.add words word
             else words in
-          (* recurse dfs *)
-          Hash_set.remove visit (row, col); words
-    in Array.iter
-      
+          let words = dfs cur words node visit (row-1) col in
+          let words = dfs cur words node visit (row+1) col in
+          let words = dfs cur words node visit row (col-1) in
+          let words = dfs cur words node visit row (col+1) in
+          words
+    in Array.foldi board ~init: String_set.empty
+      ~f: (fun i words row -> Array.foldi row ~init: words
+        ~f: (fun j acc _ -> dfs [] acc dict Pair_set.empty i j)
+        ) |> Set.to_list
       
 end
