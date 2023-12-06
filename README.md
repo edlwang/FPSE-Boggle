@@ -26,7 +26,7 @@ To extend the complexity of our project, we plan to make it possible for multipl
 
 ## Libraries
 
-We plan to use Cohttp in order to pull data down from the dictionary API. 
+We plan to use Cohttp in order to pull data down from the dictionary API and Yojson to parse the JSON response. We are also using Lwt to handle promises 
 
 ## Mock Use
 
