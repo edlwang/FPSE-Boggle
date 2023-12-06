@@ -55,12 +55,11 @@ module Ngram = struct
   let get_next (distr : t) (c : char) : char =
     match Map.find distr c with
     | Some m ->
-        let total = Map.find m '+' |> Option.value ~default:0 in
+        let total = Map.find m '+' |> Option.value ~default:1 in
         let rand = Random.int total in
         Map.fold_until m ~init:(0, 'a')
           ~f:(fun ~key ~data (acc, c) ->
-            if Char.(key = '+') then Continue (acc, c)
-            else
+            if Char.(key = '+' || key = '*') then Continue (acc, c)            else
               let acc = acc + data in
               if acc > rand then Stop key else Continue (acc, c))
           ~finish:(fun (_, c) -> c)

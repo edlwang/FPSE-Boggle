@@ -16,7 +16,7 @@ module Boggle = struct
     if len <> 0 && len <> (size * size) then failwith "Board not valid for desired size"
     else 
       let board = Array.make_matrix ~dimx: size ~dimy: size ' ' in
-      let dist = Ngram.make_distribution ["apple";"app";"application"] (* replace with english language lol *) in
+      let dist = Ngram.make_distribution ["apple";"app";"application";"sentence";"loving";"going";"concert"] (* replace with english language lol *) in
 
       let next_char (row: int) (col: int) : char = 
         let rand = Random.float 1. in
@@ -55,6 +55,10 @@ module Boggle = struct
           let words = dfs cur words node visit (row+1) col in
           let words = dfs cur words node visit row (col-1) in
           let words = dfs cur words node visit row (col+1) in
+          let words = dfs cur words node visit (row-1) (col-1) in
+          let words = dfs cur words node visit (row-1) (col+1) in
+          let words = dfs cur words node visit (row+1) (col-1) in
+          let words = dfs cur words node visit (row+1) (col+1) in
           words
     in Array.foldi board ~init: String_set.empty
       ~f: (fun i words row -> Array.foldi row ~init: words

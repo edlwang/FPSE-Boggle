@@ -9,6 +9,7 @@ module Trie = struct
     match Map.find trie.children c with
     | Some node -> Some node
     | None -> None
+    
   let insert (trie: t) ~(word: string) : t = 
     let rec helper (trie: t) (word: char list) : t = 
       match word with 
