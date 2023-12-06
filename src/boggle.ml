@@ -1,6 +1,6 @@
 open Core
 open Ngram
-open Trie
+(* open Trie *)
 open Dictionary
 
 module Boggle = struct
@@ -57,7 +57,9 @@ module Boggle = struct
         if List.mem user_words w ~equal:String.equal then
           Continue_or_stop.Continue (w, hint)
         else
-          Continue_or_stop.Stop (w, Dictionary.get_definition w)
+          match Dictionary.get_definition w with
+          | Some def -> Stop (w, String.substr_replace_all def ~pattern:w ~with_:"____")
+          | None -> Continue (word, hint)
         )
         ~finish:Fn.id
       
