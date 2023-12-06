@@ -2,6 +2,11 @@
 
 An implementation of Boggle for the Functional Programming in Software Engineering final project.
 
+## Installation
+
+1. Install dependencies using `opam install . --deps-only --working-dir`
+2. Build the program using `dune build`
+
 ## Overview
 
 In this project, we implement the game Boggle in OCaml. Boggle is a game where players are presented with a grid of letters and words must be formed by sequences of letters that are connected to each other without using the same letter position twice. For example, if we have the following board:
