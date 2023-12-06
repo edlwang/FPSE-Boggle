@@ -28,4 +28,6 @@ module Trie = struct
         | None -> false
         | Some node -> helper node tl
     in helper trie @@ String.to_list word
+
+  let is_endpoint (trie: t) : bool = trie.is_word
 end

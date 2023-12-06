@@ -20,5 +20,6 @@ module Trie: sig
   val empty: unit -> t (* Create empty trie *)
   val insert: t -> word:string -> t (* Inserts a word into the trie *)
   val is_word: t -> word:string -> bool (* Check if a given word exists in the trie *)
+  val is_endpoint: t -> bool
   val get_child: t -> char -> t option (* return the child of the root node that char maps to (wrapped in Some) if it exists, else None *)
 end

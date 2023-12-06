@@ -28,7 +28,28 @@ module Boggle = struct
       Array.iteri board ~f;
       board
     
-  (* let solve (board: t) (dict: Trie.t): string  list =  *)
+
+  (* Possibly add more efficient search, removing found words from search space *)
+  let solve (board: t) (dict: Trie.t): string list = 
+    (* let dirs = [(1,0); (-1,0); (0,1); (0,-1)] in *)
+    let num_rows, num_cols = Array.length board, Array.length board.(0) in
+    let rec dfs (cur: char list) (words: string list) (dict: Trie.t) (visit: (int * int) Hash_set.t) (row: int) (col: int) = 
+      if row < 0 || row >= num_rows || col < 0 || col >= num_cols (* || (row, col) in visit *) then words
+      else 
+        let ch = board.(row).(col) in
+        match Trie.get_child dict ch with
+        | None -> words
+        | Some node -> 
+          Hash_set.add visit (row, col);
+          let cur = ch :: cur in
+          let words = 
+            if Trie.is_endpoint node then 
+              let word = cur |> List.rev |> String.of_list in
+              word :: words
+            else words in
+          (* recurse dfs *)
+          Hash_set.remove visit (row, col); words
+    in Array.iter
       
       
 end
