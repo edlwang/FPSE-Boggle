@@ -1,6 +1,7 @@
 open Core
 open Ngram
 open Trie
+open Dictionary
 
 module Boggle = struct
   type t = char array array [@@deriving sexp]
@@ -30,7 +31,7 @@ module Boggle = struct
     
 
   (* Possibly add more efficient search, removing found words from search space *)
-  let solve (board: t) (dict: Trie.t): string list = 
+  (* let solve (board: t) (dict: Trie.t): string list = 
     (* let dirs = [(1,0); (-1,0); (0,1); (0,-1)] in *)
     let num_rows, num_cols = Array.length board, Array.length board.(0) in
     let rec dfs (cur: char list) (words: string list) (dict: Trie.t) (visit: (int * int) Hash_set.t) (row: int) (col: int) = 
@@ -49,7 +50,15 @@ module Boggle = struct
             else words in
           (* recurse dfs *)
           Hash_set.remove visit (row, col); words
-    in Array.iter
-      
+    in Array.iter *)
+
+    let get_hint (all_words : string list) (user_words : string list) : string * string =
+      List.fold_until all_words ~init:("", "") ~f:(fun (word, hint) w -> 
+        if List.mem user_words w ~equal:String.equal then
+          Continue_or_stop.Continue (w, hint)
+        else
+          Continue_or_stop.Stop (w, Dictionary.get_definition w)
+        )
+        ~finish:Fn.id
       
 end

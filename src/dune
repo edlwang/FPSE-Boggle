@@ -1,7 +1,7 @@
 (library
  (name boggle)
  (modules boggle)
- (libraries core ngram trie)
+ (libraries core ngram trie dictionary)
  (preprocess
   (pps ppx_jane)))
 
