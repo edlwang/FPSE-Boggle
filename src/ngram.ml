@@ -59,7 +59,8 @@ module Ngram = struct
         let rand = Random.int total in
         Map.fold_until m ~init:(0, 'a')
           ~f:(fun ~key ~data (acc, c) ->
-            if Char.(key = '+' || key = '*') then Continue (acc, c)            else
+            if Char.(key = '+' || key = '*') then Continue (acc, c)
+            else
               let acc = acc + data in
               if acc > rand then Stop key else Continue (acc, c))
           ~finish:(fun (_, c) -> c)
