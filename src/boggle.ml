@@ -34,8 +34,7 @@ module Boggle = struct
 
   (* Possibly add more efficient search, removing found words from search space *)
   let solve (board: t) (dict: Trie.t): string list = 
-    (* let type int_pair = (int * int) [@@deriving compare, sexp] *)
-    (* let dirs = [(1,0); (-1,0); (0,1); (0,-1)] in *)
+    let dirs = [(1,0); (-1,0); (0,1); (0,-1); (1,1); (1,-1); (-1,1); (-1,-1)] in
     let num_rows, num_cols = Array.length board, Array.length board.(0) in
     let rec dfs (cur: char list) (words: String_set.t) (dict: Trie.t) (visit: Pair_set.t) (row: int) (col: int) = 
       if row < 0 || row >= num_rows || col < 0 || col >= num_cols || Set.mem visit (row, col) then words
@@ -51,15 +50,8 @@ module Boggle = struct
               let word = cur |> List.rev |> String.of_list in
               Set.add words word
             else words in
-          let words = dfs cur words node visit (row-1) col in
-          let words = dfs cur words node visit (row+1) col in
-          let words = dfs cur words node visit row (col-1) in
-          let words = dfs cur words node visit row (col+1) in
-          let words = dfs cur words node visit (row-1) (col-1) in
-          let words = dfs cur words node visit (row-1) (col+1) in
-          let words = dfs cur words node visit (row+1) (col-1) in
-          let words = dfs cur words node visit (row+1) (col+1) in
-          words
+          List.fold dirs ~init: words ~f: (fun acc (x, y) -> dfs cur acc node visit (row+x) (col+y))
+          
     in Array.foldi board ~init: String_set.empty
       ~f: (fun i words row -> Array.foldi row ~init: words
         ~f: (fun j acc _ -> dfs [] acc dict Pair_set.empty i j)
