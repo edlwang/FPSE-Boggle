@@ -20,7 +20,6 @@ module Boggle = struct
     else
       let board = Array.make_matrix ~dimx:size ~dimy:size ' ' in
       let dist =
-
         Ngram.make_distribution
           [
             "apple";
