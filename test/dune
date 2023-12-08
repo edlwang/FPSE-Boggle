@@ -1,0 +1,10 @@
+(library 
+ (name boggle_tests)
+ (modules boggle_tests)
+ (libraries ounit2 core boggle trie))
+
+(test 
+ (name tests)
+ (modules tests)
+ (libraries ounit2 core boggle_tests))
+
