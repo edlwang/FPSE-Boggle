@@ -3,8 +3,13 @@
  (modules boggle_tests)
  (libraries ounit2 core boggle trie))
 
+(library
+ (name dictionary_tests)
+ (modules dictionary_tests)
+ (libraries ounit2 core dictionary))
+
 (test 
  (name tests)
  (modules tests)
- (libraries ounit2 core boggle_tests))
+ (libraries ounit2 core boggle_tests dictionary_tests))
 
