@@ -5,7 +5,7 @@
    and then call the run function in the resulting module
 *)
 
-(* Module type of Game hat contains a single function to run the game *)
+(* Module type of Game that contains a single function to run the game *)
 module type Game = sig
   val run: unit -> unit
 end
@@ -13,7 +13,7 @@ end
 (* Module type of Game_config which stores all the data involving the game configuration *)
 module type Game_config = sig
   val players: int (* Number of players that are competing *)
-  val time: int (* The time limit players have to find words on the goard*)
+  val time: int option (* The time limit players have to find words on the goard*)
 end
 
 (* 
