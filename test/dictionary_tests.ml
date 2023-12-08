@@ -1,5 +1,5 @@
-open OUnit2
-open Dictionary
+(* open OUnit2
+open Dictionary *)
 
 (* let test_get_definition _ =
   assert_equal
