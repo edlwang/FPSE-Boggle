@@ -1,6 +1,7 @@
 open Core
 open Ngram
 open Trie
+open Dictionary
 
 module Boggle = struct
   module Pair = struct
