@@ -16,7 +16,7 @@
 
 *)
 module Trie: sig
-  type t
+  type t [@@deriving sexp]
   val empty: unit -> t (* Create empty trie *)
   val insert: t -> word:string -> t (* Inserts a word into the trie *)
   val is_word: t -> word:string -> bool (* Check if a given word exists in the trie *)

@@ -1,10 +1,15 @@
 open Core
 open Ngram
-
-(* open Trie *)
-open Dictionary
+open Trie
 
 module Boggle = struct
+  module Pair = struct
+    type t = int * int [@@deriving compare, sexp]
+  end
+
+  module Pair_set = Set.Make_plain (Pair)
+  module String_set = Set.Make (String)
+
   type t = char array array [@@deriving sexp]
 
   let create_board ?(board : string = "") (size : int) : t =
@@ -14,7 +19,17 @@ module Boggle = struct
     else
       let board = Array.make_matrix ~dimx:size ~dimy:size ' ' in
       let dist =
-        Ngram.make_distribution [ "apple"; "app"; "application" ]
+
+        Ngram.make_distribution
+          [
+            "apple";
+            "app";
+            "application";
+            "sentence";
+            "loving";
+            "going";
+            "concert";
+          ]
         (* replace with english language lol *)
       in
 
@@ -33,27 +48,6 @@ module Boggle = struct
       board
 
   (* Possibly add more efficient search, removing found words from search space *)
-  (* let solve (board: t) (dict: Trie.t): string list =
-     (* let dirs = [(1,0); (-1,0); (0,1); (0,-1)] in *)
-     let num_rows, num_cols = Array.length board, Array.length board.(0) in
-     let rec dfs (cur: char list) (words: string list) (dict: Trie.t) (visit: (int * int) Hash_set.t) (row: int) (col: int) =
-       if row < 0 || row >= num_rows || col < 0 || col >= num_cols (* || (row, col) in visit *) then words
-       else
-         let ch = board.(row).(col) in
-         match Trie.get_child dict ch with
-         | None -> words
-         | Some node ->
-           Hash_set.add visit (row, col);
-           let cur = ch :: cur in
-           let words =
-             if Trie.is_endpoint node then
-               let word = cur |> List.rev |> String.of_list in
-               word :: words
-             else words in
-           (* recurse dfs *)
-           Hash_set.remove visit (row, col); words
-     in Array.iter *)
-
   let get_hint (all_words : string list) (user_words : string list) :
       string * string =
     List.fold_until all_words ~init:("", "")
@@ -105,4 +99,37 @@ module Boggle = struct
                  (w, 0, "Not a word on the board")
                else if Set.mem duplicates w then (w, 0, "Duplicate word")
                else (w, get_point_value w, "")))
+            
+  let solve (board : t) (dict : Trie.t) : string list =
+    let dirs =
+      [ (1, 0); (-1, 0); (0, 1); (0, -1); (1, 1); (1, -1); (-1, 1); (-1, -1) ]
+    in
+    let num_rows, num_cols = (Array.length board, Array.length board.(0)) in
+    let rec dfs (cur : char list) (words : String_set.t) (dict : Trie.t)
+        (visit : Pair_set.t) (row : int) (col : int) =
+      if
+        row < 0 || row >= num_rows || col < 0 || col >= num_cols
+        || Set.mem visit (row, col)
+      then words
+      else
+        let ch = board.(row).(col) in
+        match Trie.get_child dict ch with
+        | None -> words
+        | Some node ->
+            let visit = Set.add visit (row, col) in
+            let cur = ch :: cur in
+            let words =
+              if Trie.is_endpoint node then
+                let word = cur |> List.rev |> String.of_list in
+                Set.add words word
+              else words
+            in
+            List.fold dirs ~init:words ~f:(fun acc (x, y) ->
+                dfs cur acc node visit (row + x) (col + y))
+    in
+
+    Array.foldi board ~init:String_set.empty ~f:(fun i words row ->
+        Array.foldi row ~init:words ~f:(fun j acc _ ->
+            dfs [] acc dict Pair_set.empty i j))
+    |> Set.to_list
 end
