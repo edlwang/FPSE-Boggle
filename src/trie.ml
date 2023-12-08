@@ -9,7 +9,7 @@ module Trie = struct
     match Map.find trie.children c with
     | Some node -> Some node
     | None -> None
-  let insert (trie: t) ~(word: string) : t = 
+  let insert (trie: t) (word: string) : t = 
     let rec helper (trie: t) (word: char list) : t = 
       match word with 
       | [] -> {is_word=true; children=trie.children}
@@ -19,7 +19,7 @@ module Trie = struct
         {is_word=trie.is_word; children}
     in helper trie @@ String.to_list word (* call helper *)
 
-  let is_word (trie: t) ~(word: string) : bool = 
+  let is_word (trie: t) (word: string) : bool = 
     let rec helper (trie: t) (word: char list) : bool =
       match word with 
       | [] -> trie.is_word

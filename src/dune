@@ -23,6 +23,11 @@
  (modules trie)
  (libraries core))
 
+(library
+ (name data)
+ (modules data)
+ (libraries core trie ngram))
+
 (executable 
  (name aplusproject)
  (modules aplusproject)
