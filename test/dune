@@ -8,8 +8,13 @@
  (modules dictionary_tests)
  (libraries ounit2 core dictionary))
 
+(library 
+ (name ngram_tests)
+ (modules ngram_tests)
+ (libraries ounit2 ngram))
+
 (test 
  (name tests)
  (modules tests)
- (libraries ounit2 core boggle_tests dictionary_tests))
+ (libraries ounit2 core boggle_tests dictionary_tests ngram_tests))
 
