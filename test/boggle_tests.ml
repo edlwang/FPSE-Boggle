@@ -2,6 +2,22 @@ open OUnit2
 open Boggle
 open Core
 open Trie
+open Ngram
+
+
+
+let dist =
+  Ngram.make_distribution
+    [
+      "apple";
+      "app";
+      "application";
+      "sentence";
+      "loving";
+      "going";
+      "concert";
+    ]
+
 
 let test_create_board _ =
   let board_to_list (board : Boggle.t) : char list =
@@ -13,11 +29,11 @@ let test_create_board _ =
   cases
   |> List.iter ~f:(fun i ->
          assert_equal
-           (i |> Boggle.create_board |> board_to_list |> List.length)
+           (i |> Boggle.create_board ~dist |> board_to_list |> List.length)
            (i * i));
   cases
   |> List.iter ~f:(fun i ->
-         i |> Boggle.create_board |> board_to_list
+         i |> Boggle.create_board ~dist |> board_to_list
          |> List.iter ~f:(fun c -> assert_equal (Char.is_alpha c) true))
 
 let test_solve _ =

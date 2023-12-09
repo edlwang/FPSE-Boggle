@@ -13,26 +13,13 @@ module Boggle = struct
 
   type t = char array array [@@deriving sexp]
 
-  let create_board ?(board : string = "") (size : int) : t =
+  (* To be implemented later -- create a board from pre-defined "board" string *)
+  let create_board ?(board : string = "") ~(dist : Ngram.t) (size : int) : t =
     let len = String.length board in
     if len <> 0 && len <> size * size then
       failwith "Board not valid for desired size"
     else
       let board = Array.make_matrix ~dimx:size ~dimy:size ' ' in
-      let dist =
-        Ngram.make_distribution
-          [
-            "apple";
-            "app";
-            "application";
-            "sentence";
-            "loving";
-            "going";
-            "concert";
-          ]
-        (* replace with english language lol *)
-      in
-
       let next_char (row : int) (col : int) : char =
         let rand = Random.float 1. in
         match Float.(rand > 0.75) with
@@ -99,7 +86,7 @@ module Boggle = struct
                  (w, 0, "Not a word on the board")
                else if Set.mem duplicates w then (w, 0, "Duplicate word")
                else (w, get_point_value w, "")))
-            
+
   let solve (board : t) (dict : Trie.t) : string list =
     let dirs =
       [ (1, 0); (-1, 0); (0, 1); (0, -1); (1, 1); (1, -1); (-1, 1); (-1, -1) ]
@@ -132,4 +119,15 @@ module Boggle = struct
         Array.foldi row ~init:words ~f:(fun j acc _ ->
             dfs [] acc dict Pair_set.empty i j))
     |> Set.to_list
+
+  let print_board (board : t) : unit =
+    let board_list =
+      board |> List.of_array
+      |> List.map ~f:(fun row ->
+             row |> List.of_array |> List.map ~f:String.of_char)
+    in
+    List.fold board_list ~init:() ~f:(fun _ row ->
+        Stdio.print_string "+---+---+---+---+\n";
+        Stdio.printf "| %s |\n" (String.concat row ~sep:" | "));
+    Stdio.print_string "+---+---+---+---+\n"
 end
