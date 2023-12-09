@@ -13,8 +13,13 @@
  (modules ngram_tests)
  (libraries ounit2 ngram))
 
+(library 
+ (name trie_tests)
+ (modules trie_tests)
+ (libraries ounit2 trie))
+
 (test 
  (name tests)
  (modules tests)
- (libraries ounit2 core boggle_tests dictionary_tests ngram_tests))
+ (libraries ounit2 core boggle_tests dictionary_tests ngram_tests trie_tests))
 

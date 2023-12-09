@@ -3,6 +3,7 @@ open Core
 module Trie = struct
   module CharMap = Map.Make (Char)
 
+  (* sexp doesn't work here*)
   type t = { is_word : bool; children : t CharMap.t } [@@deriving sexp]
 
   let empty () : t = { is_word = false; children = CharMap.empty }
