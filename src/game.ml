@@ -36,16 +36,11 @@ module Make_game(Config: Game_config) : Game = struct
     Stdio.printf "    8+ letters: 7 pts\n\n";
     Stdio.printf "For this checkpoint, here is a 4x4 Boggle board generated from an ngram distribution of the entire English language!\n\n";
 
-<<<<<<< Updated upstream
-    let board = (Boggle.create_board ~dist:Data.distribution 4) in
-=======
     let board = (Boggle.create_board ~dist:Data.distribution Config.size) in
->>>>>>> Stashed changes
     Boggle.print_board board;
     Stdio.printf "\n";
     Stdio.printf "And here are the first 25 words of the solution!\n\n";
     Stdio.printf "%s\n" (String.concat (List.take (Boggle.solve board Data.trie) 40) ~sep:" ")
-
 
   )
 end
