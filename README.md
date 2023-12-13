@@ -82,7 +82,7 @@ You have 3m0s to find as many words as possible
 > hay
 > tamers
 > rim
-> !
+> !done
 
 Enter Player 2s Words (type !done to end turn):
 Hit enter to start

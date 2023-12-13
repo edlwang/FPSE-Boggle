@@ -2,6 +2,7 @@ open Core
 open Ngram
 open Trie
 open Dictionary
+open Lwt.Syntax
 
 module Boggle = struct
   module Pair = struct
@@ -9,7 +10,6 @@ module Boggle = struct
   end
 
   module Pair_set = Set.Make_plain (Pair)
-  module String_set = Set.Make (String)
 
   type t = char array array [@@deriving sexp]
 
@@ -34,24 +34,35 @@ module Boggle = struct
         in
         Array.iteri board ~f;
         board
-    | x when x = size*size ->
+    | x when x = size * size ->
         let init_list = init |> String.to_list |> List.chunks_of ~length:size in
         Array.init size ~f:(fun i -> Array.of_list @@ List.nth_exn init_list i)
     | _ -> failwith "Board not valid for desired size"
 
   (* Possibly add more efficient search, removing found words from search space *)
   let get_hint (all_words : string list) (user_words : string list) :
-      string * string =
-    List.fold_until all_words ~init:("", "")
-      ~f:(fun (word, hint) w ->
-        if List.mem user_words w ~equal:String.equal then
-          Continue_or_stop.Continue (w, hint)
-        else
-          match Dictionary.get_definition w with
+      (string * string) Lwt.t =
+    let rec get_hint_from_words (words : string list) : (string * string) Lwt.t
+        =
+      match words with
+      | [] -> Lwt.return ("", "No more words to find!")
+      | _ -> (
+          let word = List.nth_exn words (Random.int (List.length words)) in
+          let* def = Dictionary.get_definition word in
+          match def with
+          | None ->
+              get_hint_from_words
+                (List.filter words ~f:(fun w -> not (String.equal w word)))
           | Some def ->
-              Stop (w, String.substr_replace_all def ~pattern:w ~with_:"____")
-          | None -> Continue (word, hint))
-      ~finish:Fn.id
+              Lwt.return
+                (word, String.substr_replace_all def ~pattern:word ~with_:"____")
+          )
+    in
+    let possible_words =
+      List.filter all_words ~f:(fun w ->
+          not (List.mem user_words w ~equal:String.equal))
+    in
+    get_hint_from_words possible_words
 
   let compute_scores (all_words : string list)
       (all_user_words : string list list) : (string * int * string) list list =
@@ -97,7 +108,7 @@ module Boggle = struct
       [ (1, 0); (-1, 0); (0, 1); (0, -1); (1, 1); (1, -1); (-1, 1); (-1, -1) ]
     in
     let num_rows, num_cols = (Array.length board, Array.length board.(0)) in
-    let rec dfs (cur : char list) (words : String_set.t) (dict : Trie.t)
+    let rec dfs (cur : char list) (words : String.Set.t) (dict : Trie.t)
         (visit : Pair_set.t) (row : int) (col : int) =
       if
         row < 0 || row >= num_rows || col < 0 || col >= num_cols
@@ -120,7 +131,7 @@ module Boggle = struct
                 dfs cur acc node visit (row + x) (col + y))
     in
 
-    Array.foldi board ~init:String_set.empty ~f:(fun i words row ->
+    Array.foldi board ~init:String.Set.empty ~f:(fun i words row ->
         Array.foldi row ~init:words ~f:(fun j acc _ ->
             dfs [] acc dict Pair_set.empty i j))
     |> Set.to_list
@@ -134,11 +145,17 @@ module Boggle = struct
     in
 
     let range = List.range 0 size in
-    let s  = String.concat [List.fold range ~init:"+" ~f:(fun acc _ -> String.concat [acc;"---+"]) ;"\n"] in
+    let s =
+      String.concat
+        [
+          List.fold range ~init:"+" ~f:(fun acc _ ->
+              String.concat [ acc; "---+" ]);
+          "\n";
+        ]
+    in
 
-
-  List.fold board_list ~init:() ~f:(fun _ row ->
+    List.fold board_list ~init:() ~f:(fun _ row ->
         Stdio.print_string s;
         Stdio.printf "| %s |\n" (String.concat row ~sep:" | "));
-    Stdio.print_string s;
+    Stdio.print_string s
 end
