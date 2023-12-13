@@ -34,7 +34,7 @@ module Boggle = struct
         in
         Array.iteri board ~f;
         board
-    | x when x = size*size ->
+    | x when x = size * size ->
         let init_list = init |> String.to_list |> List.chunks_of ~length:size in
         Array.init size ~f:(fun i -> Array.of_list @@ List.nth_exn init_list i)
     | _ -> failwith "Board not valid for desired size"
@@ -42,16 +42,23 @@ module Boggle = struct
   (* Possibly add more efficient search, removing found words from search space *)
   let get_hint (all_words : string list) (user_words : string list) :
       string * string =
-    List.fold_until all_words ~init:("", "")
-      ~f:(fun (word, hint) w ->
-        if List.mem user_words w ~equal:String.equal then
-          Continue_or_stop.Continue (w, hint)
-        else
-          match Dictionary.get_definition w with
+    let rec get_hint_from_words (words : string list) : string * string =
+      match words with
+      | [] -> ("", "No more words to find!")
+      | _ -> (
+          let word = List.nth_exn words (Random.int (List.length words)) in
+          match Dictionary.get_definition word with
+          | None ->
+              get_hint_from_words
+                (List.filter words ~f:(fun w -> not (String.equal w word)))
           | Some def ->
-              Stop (w, String.substr_replace_all def ~pattern:w ~with_:"____")
-          | None -> Continue (word, hint))
-      ~finish:Fn.id
+              (word, String.substr_replace_all def ~pattern:word ~with_:"____"))
+    in
+    let possible_words =
+      List.filter all_words ~f:(fun w ->
+          not (List.mem user_words w ~equal:String.equal))
+    in
+    get_hint_from_words possible_words
 
   let compute_scores (all_words : string list)
       (all_user_words : string list list) : (string * int * string) list list =
@@ -134,11 +141,17 @@ module Boggle = struct
     in
 
     let range = List.range 0 size in
-    let s  = String.concat [List.fold range ~init:"+" ~f:(fun acc _ -> String.concat [acc;"---+"]) ;"\n"] in
+    let s =
+      String.concat
+        [
+          List.fold range ~init:"+" ~f:(fun acc _ ->
+              String.concat [ acc; "---+" ]);
+          "\n";
+        ]
+    in
 
-
-  List.fold board_list ~init:() ~f:(fun _ row ->
+    List.fold board_list ~init:() ~f:(fun _ row ->
         Stdio.print_string s;
         Stdio.printf "| %s |\n" (String.concat row ~sep:" | "));
-    Stdio.print_string s;
+    Stdio.print_string s
 end

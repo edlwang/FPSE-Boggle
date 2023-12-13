@@ -54,22 +54,18 @@ module Make_game (Config : Game_config) : Game = struct
       Stdio.Out_channel.flush Stdio.stdout;
       match Stdio.In_channel.input_line Stdio.stdin with
       | Some word when String.(word = "!done") -> acc
-      | Some word when String.(word = "!hint") -> 
-        if String.(hint = "") then
-          let hint = Boggle.get_hint all_board_words acc
+      | Some word when String.(word = "!hint") ->
+          let word, hint = Boggle.get_hint all_board_words acc in
           Stdio.printf "Hint: %s\n" hint;
           Stdio.Out_channel.flush Stdio.stdout;
-        else
-          Stdio.printf "You already got a hint!\n";
-          Stdio.Out_channel.flush Stdio.stdout;;
-        helper acc hint
-      | Some word -> 
-        if String.(hint <> "" && word = hint) then
-          (Stdio.printf "You got the hint!";
-          Stdio.Out_channel.flush Stdio.stdout;
-          helper (word :: acc) "")
-        else 
-          helper (word :: acc) hint
+          helper acc word
+      | Some word ->
+          if String.(hint = "") then helper (word :: acc) hint
+          else if String.(hint = word) then (
+            Stdio.printf "You got the hint!\n";
+            Stdio.Out_channel.flush Stdio.stdout;
+            helper (word :: acc) "")
+          else helper (word :: acc) hint
       | None -> acc
     in
     Stdio.Out_channel.flush Stdio.stdout;
