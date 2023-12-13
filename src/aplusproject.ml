@@ -1,8 +1,10 @@
 open Core
 
-let main (num_players : int option) (time_limit : int option) : _ =
+let main (num_players : int option) (time_limit : int option)
+    (board_size : int option) : _ =
   let module Config = struct
     let players = match num_players with Some v -> v | None -> 1
+    let size = match board_size with Some v -> v | None -> 4
     let time = time_limit
   end in
   let module Boggle_game = Game.Make_game (Config) in
@@ -17,7 +19,9 @@ let command =
      and time_limit =
        flag "--time-limit" (optional int)
          ~doc:"TIME-LIMIT Time limit for the game in seconds"
+     and board_size =
+       flag "--board-size" (optional int) ~doc:"BOARD-SIZE Size of the board"
      in
-     fun () -> main num_players time_limit)
+     fun () -> main num_players time_limit board_size)
 
 let () = Command_unix.run ~version:"1.0" ~build_info:"RWO" command

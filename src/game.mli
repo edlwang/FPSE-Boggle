@@ -14,6 +14,7 @@ end
 module type Game_config = sig
   val players: int (* Number of players that are competing *)
   val time: int option (* The time limit players have to find words on the goard*)
+  val size : int (* The size of the board *)
 end
 
 (* 
