@@ -126,13 +126,19 @@ module Boggle = struct
     |> Set.to_list
 
   let print_board (board : t) : unit =
+    let size = Array.length board in
     let board_list =
       board |> List.of_array
       |> List.map ~f:(fun row ->
              row |> List.of_array |> List.map ~f:String.of_char)
     in
-    List.fold board_list ~init:() ~f:(fun _ row ->
-        Stdio.print_string "+---+---+---+---+\n";
+
+    let range = List.range 0 size in
+    let s  = String.concat [List.fold range ~init:"+" ~f:(fun acc _ -> String.concat [acc;"---+"]) ;"\n"] in
+
+
+  List.fold board_list ~init:() ~f:(fun _ row ->
+        Stdio.print_string s;
         Stdio.printf "| %s |\n" (String.concat row ~sep:" | "));
-    Stdio.print_string "+---+---+---+---+\n"
+    Stdio.print_string s;
 end
