@@ -48,29 +48,6 @@ module Make_game (Config : Game_config) : Game = struct
     Stdio.printf "- !hint : obtain a hint (there are no penalties!)\n";
     Stdio.print_endline ""
 
-  (* let get_all_words (all_board_words : string list) : string list =
-     let rec helper acc hint =
-       Stdio.printf "> ";
-       Stdio.Out_channel.flush Stdio.stdout;
-       match Stdio.In_channel.input_line Stdio.stdin with
-       | Some word when String.(word = "!done") -> acc
-       | Some word when String.(word = "!hint") ->
-           let word, hint = Boggle.get_hint all_board_words acc in
-           Stdio.printf "Hint: %s\n" hint;
-           Stdio.Out_channel.flush Stdio.stdout;
-           helper acc word
-       | Some word ->
-           if String.(hint = "") then helper (word :: acc) hint
-           else if String.(hint = word) then (
-             Stdio.printf "You got the hint!\n";
-             Stdio.Out_channel.flush Stdio.stdout;
-             helper (word :: acc) "")
-           else helper (word :: acc) hint
-       | None -> acc
-     in
-     Stdio.Out_channel.flush Stdio.stdout;
-     helper [] "" |> List.rev *)
-
   let get_user_words_async all_board_words : string list =
     let open Lwt.Syntax in
     let words = ref [] in
