@@ -3,21 +3,11 @@ open Boggle
 open Core
 open Trie
 open Ngram
-
-
+open Lwt.Syntax
 
 let dist =
   Ngram.make_distribution
-    [
-      "apple";
-      "app";
-      "application";
-      "sentence";
-      "loving";
-      "going";
-      "concert";
-    ]
-
+    [ "apple"; "app"; "application"; "sentence"; "loving"; "going"; "concert" ]
 
 let test_create_board _ =
   let board_to_list (board : Boggle.t) : char list =
@@ -58,20 +48,25 @@ let test_solve _ =
   in
   assert_equal (Boggle.solve board3 trie) [ "banana" ]
 
-(* let test_get_hint _ =
-  let all_words = [ "apple"; "banana"; "pear" ] in
-  let user_words1 = [] in
-  let word, hint = Boggle.get_hint all_words user_words1 in
-  assert_equal word "apple";
-  assert_equal (String.substr_replace_all hint ~pattern:word ~with_:"") hint;
-  let user_words2 = [ "apple" ] in
-  let word, hint = Boggle.get_hint all_words user_words2 in
-  assert_equal word "banana";
-  assert_equal (String.substr_replace_all hint ~pattern:word ~with_:"") hint;
-  let user_words3 = [ "apple"; "banana" ] in
-  let word, hint = Boggle.get_hint all_words user_words3 in
-  assert_equal word "pear";
-  assert_equal (String.substr_replace_all hint ~pattern:word ~with_:"") hint *)
+let test_get_hint _ =
+  Lwt_main.run
+    (let all_words = [ "apple"; "banana"; "pear" ] in
+     let user_words1 = [] in
+     let* word, hint = Boggle.get_hint all_words user_words1 in
+     assert_equal (List.mem all_words word ~equal:String.( = )) true;
+     assert_equal (List.mem user_words1 word ~equal:String.( = )) false;
+     assert_equal (String.substr_replace_all hint ~pattern:word ~with_:"") hint;
+     let user_words2 = [ "apple" ] in
+     let* word, hint = Boggle.get_hint all_words user_words2 in
+     assert_equal (List.mem all_words word ~equal:String.( = )) true;
+     assert_equal (List.mem user_words2 word ~equal:String.( = )) false;
+     assert_equal (String.substr_replace_all hint ~pattern:word ~with_:"") hint;
+     let user_words3 = [ "apple"; "banana" ] in
+     let* word, hint = Boggle.get_hint all_words user_words3 in
+     assert_equal (List.mem all_words word ~equal:String.( = )) true;
+     assert_equal (List.mem user_words3 word ~equal:String.( = )) false;
+     assert_equal (String.substr_replace_all hint ~pattern:word ~with_:"") hint;
+     Lwt.return_unit)
 
 let test_compute_scores _ =
   let all_words = [ "apple"; "banana"; "pear" ] in
@@ -92,6 +87,6 @@ let boggle_tests =
   >::: [
          "Test create_board" >:: test_create_board;
          "Test solve" >:: test_solve;
-         (*"Test get_hint" >:: test_get_hint;*)
+         "Test get_hint" >:: test_get_hint;
          "Test compute_scores" >:: test_compute_scores;
        ]
