@@ -14,25 +14,30 @@ module Boggle = struct
   type t = char array array [@@deriving sexp]
 
   (* To be implemented later -- create a board from pre-defined "board" string *)
-  let create_board ?(board : string = "") ~(dist : Ngram.t) (size : int) : t =
-    let len = String.length board in
-    if len <> 0 && len <> size * size then
-      failwith "Board not valid for desired size"
-    else
-      let board = Array.make_matrix ~dimx:size ~dimy:size ' ' in
-      let next_char (row : int) (col : int) : char =
-        let rand = Random.float 1. in
-        match Float.(rand > 0.75) with
-        | true -> Ngram.get_random dist
-        | false -> (
-            match (row, col) with
-            | 0, 0 -> Ngram.get_random dist
-            | _, 0 -> Ngram.get_next dist board.(row - 1).(col)
-            | _, _ -> Ngram.get_next dist board.(row).(col - 1))
-      in
-      let f i row = Array.iteri row ~f:(fun j _ -> row.(j) <- next_char i j) in
-      Array.iteri board ~f;
-      board
+  let create_board ?(init : string = "") ~(dist : Ngram.t) (size : int) : t =
+    let len = String.length init in
+    match len with
+    | 0 ->
+        let board = Array.make_matrix ~dimx:size ~dimy:size ' ' in
+        let next_char (row : int) (col : int) : char =
+          let rand = Random.float 1. in
+          match Float.(rand > 0.75) with
+          | true -> Ngram.get_random dist
+          | false -> (
+              match (row, col) with
+              | 0, 0 -> Ngram.get_random dist
+              | _, 0 -> Ngram.get_next dist board.(row - 1).(col)
+              | _, _ -> Ngram.get_next dist board.(row).(col - 1))
+        in
+        let f i row =
+          Array.iteri row ~f:(fun j _ -> row.(j) <- next_char i j)
+        in
+        Array.iteri board ~f;
+        board
+    | x when x = size*size ->
+        let init_list = init |> String.to_list |> List.chunks_of ~length:size in
+        Array.init size ~f:(fun i -> Array.of_list @@ List.nth_exn init_list i)
+    | _ -> failwith "Board not valid for desired size"
 
   (* Possibly add more efficient search, removing found words from search space *)
   let get_hint (all_words : string list) (user_words : string list) :
@@ -121,13 +126,19 @@ module Boggle = struct
     |> Set.to_list
 
   let print_board (board : t) : unit =
+    let size = Array.length board in
     let board_list =
       board |> List.of_array
       |> List.map ~f:(fun row ->
              row |> List.of_array |> List.map ~f:String.of_char)
     in
-    List.fold board_list ~init:() ~f:(fun _ row ->
-        Stdio.print_string "+---+---+---+---+\n";
+
+    let range = List.range 0 size in
+    let s  = String.concat [List.fold range ~init:"+" ~f:(fun acc _ -> String.concat [acc;"---+"]) ;"\n"] in
+
+
+  List.fold board_list ~init:() ~f:(fun _ row ->
+        Stdio.print_string s;
         Stdio.printf "| %s |\n" (String.concat row ~sep:" | "));
-    Stdio.print_string "+---+---+---+---+\n"
+    Stdio.print_string s;
 end
