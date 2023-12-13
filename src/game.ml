@@ -48,18 +48,32 @@ module Make_game (Config : Game_config) : Game = struct
     Stdio.printf "- !hint : obtain a hint (there are no penalties!)\n";
     Stdio.print_endline ""
 
-  let get_all_words () : string list =
-    let rec helper acc =
+  let get_all_words (all_board_words : string list) : string list =
+    let rec helper acc hint =
       Stdio.printf "> ";
       Stdio.Out_channel.flush Stdio.stdout;
       match Stdio.In_channel.input_line Stdio.stdin with
       | Some word when String.(word = "!done") -> acc
-      | Some word when String.(word = "!hint") -> acc
-      | Some word -> helper (word :: acc)
+      | Some word when String.(word = "!hint") -> 
+        if String.(hint = "") then
+          let hint = Boggle.get_hint all_board_words acc
+          Stdio.printf "Hint: %s\n" hint;
+          Stdio.Out_channel.flush Stdio.stdout;
+        else
+          Stdio.printf "You already got a hint!\n";
+          Stdio.Out_channel.flush Stdio.stdout;;
+        helper acc hint
+      | Some word -> 
+        if String.(hint <> "" && word = hint) then
+          (Stdio.printf "You got the hint!";
+          Stdio.Out_channel.flush Stdio.stdout;
+          helper (word :: acc) "")
+        else 
+          helper (word :: acc) hint
       | None -> acc
     in
     Stdio.Out_channel.flush Stdio.stdout;
-    helper [] |> List.rev
+    helper [] "" |> List.rev
 
   let run _ =
     print_instructions ();
@@ -67,6 +81,7 @@ module Make_game (Config : Game_config) : Game = struct
     Boggle.print_board board;
     Stdio.print_endline "";
 
+    let all_board_words = Boggle.solve board Data.trie in
     let players = List.range 1 (Config.players + 1) in
     let all_player_words =
       List.fold players ~init:[] ~f:(fun acc player ->
@@ -80,11 +95,10 @@ module Make_game (Config : Game_config) : Game = struct
            | Some t -> Stdio.printf "You have %d seconds to find words\n" t
            | None -> Stdio.printf "You have unlimited time to find words\n");
           Stdio.Out_channel.flush Stdio.stdout;
-          get_all_words () :: acc)
+          get_all_words all_board_words :: acc)
       |> List.rev
     in
     Stdio.print_endline "";
-    let all_board_words = Boggle.solve board Data.trie in
     let player_word_scores =
       Boggle.compute_scores all_board_words all_player_words
     in
