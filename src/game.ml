@@ -48,37 +48,35 @@ module Make_game (Config : Game_config) : Game = struct
     Stdio.printf "- !hint : obtain a hint (there are no penalties!)\n";
     Stdio.print_endline ""
 
-  (* let get_all_words () : string list =
-     let rec helper acc =
-       Stdio.printf "> ";
-       Stdio.Out_channel.flush Stdio.stdout;
-       match Stdio.In_channel.input_line Stdio.stdin with
-       | Some word when String.(word = "!done") -> acc
-       | Some word when String.(word = "!hint") -> acc
-       | Some word -> helper (word :: acc)
-       | None -> acc
-     in
-     Stdio.Out_channel.flush Stdio.stdout;
-     helper [] |> List.rev *)
-
-  let get_user_words_async () : string list =
+  let get_user_words_async all_board_words : string list =
     let open Lwt.Syntax in
     let words = ref [] in
     let get_input =
-      let rec process acc =
+      let rec process acc hint =
         let _ = Lwt_io.print "> " in
         let _ = Lwt_io.(flush stdout) in
         let* line = Lwt_io.(read_line stdin) in
         let* acc_str = acc in
         match line with
         | word when String.(word = "!done") -> Lwt.return acc_str
-        | word when String.(word = "!hint") -> Lwt.return acc_str
+        | word when String.(word = "!hint") ->
+            let* hint_output = Boggle.get_hint all_board_words acc_str in
+            let word, hint = hint_output in
+            let _ = Lwt_io.printf "Hint: %s\n" hint in
+            let _ = Lwt_io.(flush stdout) in
+            process (Lwt.return acc_str) word
         | word ->
             words := word :: !words;
-            process @@ Lwt.return (word :: acc_str)
+            if String.(hint = "") then
+              process (Lwt.return (word :: acc_str)) hint
+            else if String.(hint = word) then
+              let _ = Lwt_io.printl "You got the hint!" in
+              let _ = Lwt_io.(flush stdout) in
+              process (Lwt.return (word :: acc_str)) ""
+            else process (Lwt.return (word :: acc_str)) hint
       in
       (* CLEAN UP SYNTAX FOR MONAD PIPE LIST.REV *)
-      let* lst = process (Lwt.return []) in
+      let* lst = process (Lwt.return []) "" in
       Lwt.return (lst |> List.rev)
     in
 
@@ -100,6 +98,7 @@ module Make_game (Config : Game_config) : Game = struct
     Boggle.print_board board;
     Stdio.print_endline "";
 
+    let all_board_words = Boggle.solve board Data.trie in
     let players = List.range 1 (Config.players + 1) in
     let all_player_words =
       List.fold players ~init:[] ~f:(fun acc player ->
@@ -112,11 +111,10 @@ module Make_game (Config : Game_config) : Game = struct
            | Some t -> Stdio.printf "You have %d seconds to find words\n" t
            | None -> Stdio.printf "You have unlimited time to find words\n");
           Stdio.Out_channel.flush Stdio.stdout;
-          get_user_words_async () :: acc)
+          get_user_words_async all_board_words :: acc)
       |> List.rev
     in
     Stdio.print_endline "\n";
-    let all_board_words = Boggle.solve board Data.trie in
     let player_word_scores =
       Boggle.compute_scores all_board_words all_player_words
     in
