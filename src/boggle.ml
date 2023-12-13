@@ -2,6 +2,7 @@ open Core
 open Ngram
 open Trie
 open Dictionary
+open Lwt.Syntax
 
 module Boggle = struct
   module Pair = struct
@@ -9,7 +10,6 @@ module Boggle = struct
   end
 
   module Pair_set = Set.Make_plain (Pair)
-  module String_set = Set.Make (String)
 
   type t = char array array [@@deriving sexp]
 
@@ -41,18 +41,22 @@ module Boggle = struct
 
   (* Possibly add more efficient search, removing found words from search space *)
   let get_hint (all_words : string list) (user_words : string list) :
-      string * string =
-    let rec get_hint_from_words (words : string list) : string * string =
+      (string * string) Lwt.t =
+    let rec get_hint_from_words (words : string list) : (string * string) Lwt.t
+        =
       match words with
-      | [] -> ("", "No more words to find!")
+      | [] -> Lwt.return ("", "No more words to find!")
       | _ -> (
           let word = List.nth_exn words (Random.int (List.length words)) in
-          match Dictionary.get_definition word with
+          let* def = Dictionary.get_definition word in
+          match def with
           | None ->
               get_hint_from_words
                 (List.filter words ~f:(fun w -> not (String.equal w word)))
           | Some def ->
-              (word, String.substr_replace_all def ~pattern:word ~with_:"____"))
+              Lwt.return
+                (word, String.substr_replace_all def ~pattern:word ~with_:"____")
+          )
     in
     let possible_words =
       List.filter all_words ~f:(fun w ->
@@ -104,7 +108,7 @@ module Boggle = struct
       [ (1, 0); (-1, 0); (0, 1); (0, -1); (1, 1); (1, -1); (-1, 1); (-1, -1) ]
     in
     let num_rows, num_cols = (Array.length board, Array.length board.(0)) in
-    let rec dfs (cur : char list) (words : String_set.t) (dict : Trie.t)
+    let rec dfs (cur : char list) (words : String.Set.t) (dict : Trie.t)
         (visit : Pair_set.t) (row : int) (col : int) =
       if
         row < 0 || row >= num_rows || col < 0 || col >= num_cols
@@ -127,7 +131,7 @@ module Boggle = struct
                 dfs cur acc node visit (row + x) (col + y))
     in
 
-    Array.foldi board ~init:String_set.empty ~f:(fun i words row ->
+    Array.foldi board ~init:String.Set.empty ~f:(fun i words row ->
         Array.foldi row ~init:words ~f:(fun j acc _ ->
             dfs [] acc dict Pair_set.empty i j))
     |> Set.to_list

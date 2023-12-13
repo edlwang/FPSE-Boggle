@@ -48,28 +48,72 @@ module Make_game (Config : Game_config) : Game = struct
     Stdio.printf "- !hint : obtain a hint (there are no penalties!)\n";
     Stdio.print_endline ""
 
-  let get_all_words (all_board_words : string list) : string list =
-    let rec helper acc hint =
-      Stdio.printf "> ";
-      Stdio.Out_channel.flush Stdio.stdout;
-      match Stdio.In_channel.input_line Stdio.stdin with
-      | Some word when String.(word = "!done") -> acc
-      | Some word when String.(word = "!hint") ->
-          let word, hint = Boggle.get_hint all_board_words acc in
-          Stdio.printf "Hint: %s\n" hint;
-          Stdio.Out_channel.flush Stdio.stdout;
-          helper acc word
-      | Some word ->
-          if String.(hint = "") then helper (word :: acc) hint
-          else if String.(hint = word) then (
-            Stdio.printf "You got the hint!\n";
-            Stdio.Out_channel.flush Stdio.stdout;
-            helper (word :: acc) "")
-          else helper (word :: acc) hint
-      | None -> acc
+  (* let get_all_words (all_board_words : string list) : string list =
+     let rec helper acc hint =
+       Stdio.printf "> ";
+       Stdio.Out_channel.flush Stdio.stdout;
+       match Stdio.In_channel.input_line Stdio.stdin with
+       | Some word when String.(word = "!done") -> acc
+       | Some word when String.(word = "!hint") ->
+           let word, hint = Boggle.get_hint all_board_words acc in
+           Stdio.printf "Hint: %s\n" hint;
+           Stdio.Out_channel.flush Stdio.stdout;
+           helper acc word
+       | Some word ->
+           if String.(hint = "") then helper (word :: acc) hint
+           else if String.(hint = word) then (
+             Stdio.printf "You got the hint!\n";
+             Stdio.Out_channel.flush Stdio.stdout;
+             helper (word :: acc) "")
+           else helper (word :: acc) hint
+       | None -> acc
+     in
+     Stdio.Out_channel.flush Stdio.stdout;
+     helper [] "" |> List.rev *)
+
+  let get_user_words_async all_board_words : string list =
+    let open Lwt.Syntax in
+    let words = ref [] in
+    let get_input =
+      let rec process acc hint =
+        let _ = Lwt_io.print "> " in
+        let _ = Lwt_io.(flush stdout) in
+        let* line = Lwt_io.(read_line stdin) in
+        let* acc_str = acc in
+        match line with
+        | word when String.(word = "!done") -> Lwt.return acc_str
+        | word when String.(word = "!hint") ->
+            let* hint_output = Boggle.get_hint all_board_words acc_str in
+            let word, hint = hint_output in
+            let _ = Lwt_io.printf "Hint: %s\n" hint in
+            let _ = Lwt_io.(flush stdout) in
+            process (Lwt.return acc_str) word
+        | word ->
+            words := word :: !words;
+            if String.(hint = "") then
+              process (Lwt.return (word :: acc_str)) hint
+            else if String.(hint = word) then
+              let _ = Lwt_io.printl "You got the hint!" in
+              let _ = Lwt_io.(flush stdout) in
+              process (Lwt.return (word :: acc_str)) ""
+            else process (Lwt.return (word :: acc_str)) hint
+      in
+      (* CLEAN UP SYNTAX FOR MONAD PIPE LIST.REV *)
+      let* lst = process (Lwt.return []) "" in
+      Lwt.return (lst |> List.rev)
     in
-    Stdio.Out_channel.flush Stdio.stdout;
-    helper [] "" |> List.rev
+
+    match Config.time with
+    | Some t ->
+        let timeout =
+          let* _ = Lwt_unix.sleep (Int.to_float t) in
+          let _ = Lwt_io.printl "\nYour time has run up!" in
+          let _ = Lwt_io.(flush stdout) in
+          Lwt.return !words
+        in
+        let result = Lwt.pick [ get_input; timeout ] in
+        Lwt_main.run result
+    | None -> Lwt_main.run get_input
 
   let run _ =
     print_instructions ();
@@ -83,18 +127,17 @@ module Make_game (Config : Game_config) : Game = struct
       List.fold players ~init:[] ~f:(fun acc player ->
           Stdio.printf "Enter Player %d's Words (type !done to end turn):\n"
             player;
-          Stdio.printf "Hit enter to start\n";
-          Stdio.printf "> ";
+          Stdio.printf "Hit enter to start: ";
           Stdio.Out_channel.flush Stdio.stdout;
           (let _ = Stdio.In_channel.input_line Stdio.stdin in
            match Config.time with
            | Some t -> Stdio.printf "You have %d seconds to find words\n" t
            | None -> Stdio.printf "You have unlimited time to find words\n");
           Stdio.Out_channel.flush Stdio.stdout;
-          get_all_words all_board_words :: acc)
+          get_user_words_async all_board_words :: acc)
       |> List.rev
     in
-    Stdio.print_endline "";
+    Stdio.print_endline "\n";
     let player_word_scores =
       Boggle.compute_scores all_board_words all_player_words
     in
@@ -114,7 +157,8 @@ module Make_game (Config : Game_config) : Game = struct
     | Ok () -> ()
     | Unequal_lengths -> failwith "Error: Unequal lengths\n");
 
-    Stdio.printf "And here are the first 25 words of the solution!\n\n";
+    Stdio.printf "And here are the first 30 words of the solution!\n\n";
     Stdio.printf "%s\n"
-      (String.concat (List.take (Boggle.solve board Data.trie) 40) ~sep:" ")
+      (String.concat (List.take (Boggle.solve board Data.trie) 30) ~sep:" ");
+    Stdio.Out_channel.flush Stdio.stdout
 end

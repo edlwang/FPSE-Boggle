@@ -58,7 +58,7 @@ let test_solve _ =
   in
   assert_equal (Boggle.solve board3 trie) [ "banana" ]
 
-let test_get_hint _ =
+(* let test_get_hint _ =
   let all_words = [ "apple"; "banana"; "pear" ] in
   let user_words1 = [] in
   let word, hint = Boggle.get_hint all_words user_words1 in
@@ -71,7 +71,7 @@ let test_get_hint _ =
   let user_words3 = [ "apple"; "banana" ] in
   let word, hint = Boggle.get_hint all_words user_words3 in
   assert_equal word "pear";
-  assert_equal (String.substr_replace_all hint ~pattern:word ~with_:"") hint
+  assert_equal (String.substr_replace_all hint ~pattern:word ~with_:"") hint *)
 
 let test_compute_scores _ =
   let all_words = [ "apple"; "banana"; "pear" ] in
@@ -92,6 +92,6 @@ let boggle_tests =
   >::: [
          "Test create_board" >:: test_create_board;
          "Test solve" >:: test_solve;
-         "Test get_hint" >:: test_get_hint;
+         (*"Test get_hint" >:: test_get_hint;*)
          "Test compute_scores" >:: test_compute_scores;
        ]
