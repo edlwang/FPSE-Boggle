@@ -9,7 +9,6 @@ module Boggle = struct
   end
 
   module Pair_set = Set.Make_plain (Pair)
-  module String_set = Set.Make (String)
 
   type t = char array array [@@deriving sexp]
 
@@ -97,7 +96,7 @@ module Boggle = struct
       [ (1, 0); (-1, 0); (0, 1); (0, -1); (1, 1); (1, -1); (-1, 1); (-1, -1) ]
     in
     let num_rows, num_cols = (Array.length board, Array.length board.(0)) in
-    let rec dfs (cur : char list) (words : String_set.t) (dict : Trie.t)
+    let rec dfs (cur : char list) (words : String.Set.t) (dict : Trie.t)
         (visit : Pair_set.t) (row : int) (col : int) =
       if
         row < 0 || row >= num_rows || col < 0 || col >= num_cols
@@ -120,7 +119,7 @@ module Boggle = struct
                 dfs cur acc node visit (row + x) (col + y))
     in
 
-    Array.foldi board ~init:String_set.empty ~f:(fun i words row ->
+    Array.foldi board ~init:String.Set.empty ~f:(fun i words row ->
         Array.foldi row ~init:words ~f:(fun j acc _ ->
             dfs [] acc dict Pair_set.empty i j))
     |> Set.to_list
