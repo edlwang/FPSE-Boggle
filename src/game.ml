@@ -82,13 +82,17 @@ module Make_game (Config : Game_config) : Game = struct
       Lwt.return (lst |> List.rev)
     in
 
-    let timeout =
-      let* _ = Lwt_unix.sleep 10. in (* don't hardcode time*)
-      Lwt.return !words
-    in
-    let result = Lwt.pick [ get_input; timeout ] in
-
-    Lwt_main.run result
+    match Config.time with
+    | Some t ->
+        let timeout =
+          let* _ = Lwt_unix.sleep (Int.to_float t) in
+          let _ = Lwt_io.printl "\nYour time has run up!" in
+          let _ = Lwt_io.(flush stdout) in
+          Lwt.return !words
+        in
+        let result = Lwt.pick [ get_input; timeout ] in
+        Lwt_main.run result
+    | None -> Lwt_main.run get_input
 
   let run _ =
     print_instructions ();
@@ -99,18 +103,17 @@ module Make_game (Config : Game_config) : Game = struct
     let players = List.range 1 (Config.players + 1) in
     let all_player_words =
       List.fold players ~init:[] ~f:(fun acc player ->
-             Stdio.printf "Enter Player %d's Words (type !done to end turn):\n"
-               player;
-             Stdio.printf "Hit enter to start:\n";
-             (* Stdio.printf "> "; *)
-             Stdio.Out_channel.flush Stdio.stdout;
-             (let _ = Stdio.In_channel.input_line Stdio.stdin in
-              match Config.time with
-              | Some t -> Stdio.printf "You have %d seconds to find words\n" t
-              | None -> Stdio.printf "You have 10 seconds to find words\n"); (* fix this for time constraint *)
-             Stdio.Out_channel.flush Stdio.stdout;
-             get_user_words_async () :: acc)
-         |> List.rev
+          Stdio.printf "Enter Player %d's Words (type !done to end turn):\n"
+            player;
+          Stdio.printf "Hit enter to start: ";
+          Stdio.Out_channel.flush Stdio.stdout;
+          (let _ = Stdio.In_channel.input_line Stdio.stdin in
+           match Config.time with
+           | Some t -> Stdio.printf "You have %d seconds to find words\n" t
+           | None -> Stdio.printf "You have unlimited time to find words\n");
+          Stdio.Out_channel.flush Stdio.stdout;
+          get_user_words_async () :: acc)
+      |> List.rev
     in
     Stdio.print_endline "\n";
     let all_board_words = Boggle.solve board Data.trie in
@@ -137,38 +140,4 @@ module Make_game (Config : Game_config) : Game = struct
     Stdio.printf "%s\n"
       (String.concat (List.take (Boggle.solve board Data.trie) 30) ~sep:" ");
     Stdio.Out_channel.flush Stdio.stdout
-
-  (* ASYNC STUFF START *)
-  (* let get_words_async () =
-     Stdio.Out_channel.flush Stdio.stdout;
-     let open Lwt.Syntax in
-
-     let so_far = ref [] in
-     let p1 =
-
-       let rec helper acc =
-         let _ = Lwt_io.print "> " in
-         let _ = Lwt_io.(flush stdout) in
-         let* line = Lwt_io.(read_line stdin) in
-         let* acc = acc in
-         match line with
-         | word when String.(word = "!done") -> Lwt.return (acc)
-         | word when String.(word = "!hint") -> Lwt.return (acc)
-         | word ->
-           so_far := word :: !so_far;
-           helper @@ Lwt.return (word :: acc)
-       in
-       (* CLEAN UP SYNTAX FOR MONAD PIPE LIST.REV *)
-       let* lst = helper (Lwt.return([])) in
-       Lwt.return (lst |> List.rev) in
-
-       let p2 =
-         let* _ = Lwt_unix.sleep 8. in
-         Lwt.return (!so_far) in
-       let p3 = Lwt.pick [p1;p2] in
-
-     let entered = Lwt_main.run p3 in
-
-     Stdio.printf "\nUser entered: [%s]\n\n" (String.concat ~sep:"; " entered);
-     Stdio.printf "The end.\n\n"; *)
 end
