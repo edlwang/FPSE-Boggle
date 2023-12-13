@@ -92,6 +92,9 @@ module Make_game (Config : Game_config) : Game = struct
         Lwt_main.run result
     | None -> Lwt_main.run get_input
 
+  let calculate_score (word_scores : (string * int * string) list) : int =
+    List.fold word_scores ~init:0 ~f:(fun acc (_, score, _) -> acc + score)
+
   let run _ =
     print_instructions ();
     let board = Boggle.create_board ~dist:Data.distribution Config.size in
@@ -118,21 +121,34 @@ module Make_game (Config : Game_config) : Game = struct
     let player_word_scores =
       Boggle.compute_scores all_board_words all_player_words
     in
-    (match
-       List.iter2 players player_word_scores ~f:(fun player word_scores ->
-           let total_score =
-             List.fold word_scores ~init:0 ~f:(fun acc (_, score, _) ->
-                 acc + score)
-           in
-           Stdio.printf "Player %d Score: %d\n" player total_score;
-           List.iter word_scores ~f:(fun (word, score, comment) ->
-               match score with
-               | 0 -> Stdio.printf "- %s\t\t(%s)\n" word comment
-               | _ -> Stdio.printf "- %s\t\t(%d)\n" word score);
-           Stdio.print_endline "")
-     with
-    | Ok () -> ()
-    | Unequal_lengths -> failwith "Error: Unequal lengths\n");
+    let winners =
+      List.fold2_exn players player_word_scores ~init:([], 0)
+        ~f:(fun (winners, max_score) player word_scores ->
+          let player_score = calculate_score word_scores in
+          if player_score > max_score then ([ player ], player_score)
+          else if player_score = max_score then (player :: winners, max_score)
+          else (winners, max_score))
+      |> fun (winners, _) -> List.rev winners
+    in
+    if List.length winners = 1 then
+      Stdio.printf "Player %d wins with the most points!\n"
+        (List.hd_exn winners)
+    else
+      Stdio.printf "Players %s tie for the most points!\n"
+        (String.concat ~sep:", "
+           (List.map winners ~f:(fun player -> Int.to_string player)));
+    Stdio.print_endline "";
+    List.iter2_exn players player_word_scores ~f:(fun player word_scores ->
+        let total_score =
+          List.fold word_scores ~init:0 ~f:(fun acc (_, score, _) ->
+              acc + score)
+        in
+        Stdio.printf "Player %d Score: %d\n" player total_score;
+        List.iter word_scores ~f:(fun (word, score, comment) ->
+            match score with
+            | 0 -> Stdio.printf "- %s\t\t(%s)\n" word comment
+            | _ -> Stdio.printf "- %s\t\t(%d)\n" word score);
+        Stdio.print_endline "");
 
     Stdio.printf "And here are the first 30 words of the solution!\n\n";
     Stdio.printf "%s\n"
