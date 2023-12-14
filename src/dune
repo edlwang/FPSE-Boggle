@@ -3,27 +3,38 @@
  (modules boggle)
  (libraries core ngram trie dictionary)
  (preprocess
-  (pps ppx_jane)))
+  (pps ppx_jane bisect_ppx)))
 
 (library
  (name dictionary)
  (modules dictionary)
- (libraries core cohttp cohttp-lwt-unix lwt yojson core_unix.sys_unix))
+ (libraries core cohttp cohttp-lwt-unix lwt yojson core_unix.sys_unix)
+ (preprocess
+  (pps bisect_ppx)))
 
 (library
  (name game)
  (modules game)
- (libraries core stdio data boggle))
+ (libraries core stdio data boggle)
+;  (preprocess
+  ; (pps bisect_ppx))
+ ; No coverage here as game is exclusively functions for the executable
+ ; (async code and IO), with the exception of 1 line, so no tests written
+ )
 
 (library
  (name ngram)
  (modules ngram)
- (libraries core))
+ (libraries core)
+ (preprocess
+  (pps bisect_ppx)))
 
 (library
  (name trie)
  (modules trie)
- (libraries core))
+ (libraries core)
+ (preprocess
+  (pps bisect_ppx)))
 
 (library
  (name data)

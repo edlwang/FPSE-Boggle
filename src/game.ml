@@ -2,6 +2,7 @@
 
 open Boggle
 open Core
+[@@@coverage exclude_file]
 
 module type Game = sig
   val print_instructions : unit -> unit
@@ -99,7 +100,7 @@ module Make_game (Config : Game_config) : Game = struct
   let run _ =
     print_instructions ();
     let board = Boggle.create_board ~dist:Data.distribution Config.size in
-    Boggle.print_board board;
+    Stdio.print_string @@ Boggle.string_of_t board;
     Stdio.print_endline "";
 
     let all_board_words = Boggle.solve board Data.trie in

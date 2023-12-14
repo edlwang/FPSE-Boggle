@@ -77,7 +77,7 @@ let handle_newgame (board : Boggle.t) (time : int) (name : string)
   end in
   let module NewGame = Game.Make_game (Config) in
   NewGame.print_instructions ();
-  Boggle.print_board board;
+  Stdio.print_string @@ Boggle.string_of_t board;
   Stdio.print_endline "Enter your words (type !done to end turn):\n";
   Stdio.print_string "Hit enter to start: ";
   Stdio.Out_channel.flush Stdio.stdout;
@@ -123,7 +123,7 @@ let main (name : string) (server : string) : _ =
      | _ -> Lwt.return ())
 
 let command =
-  Command.basic ~summary:"Start a Boggle client!"
+  Command.basic ~summary:"\nStart a Boggle client!"
     ~readme:(fun () -> "More detailed information")
     (let%map_open.Command name = anon ("name" %: string)
      and server = anon ("server" %: string) in

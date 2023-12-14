@@ -13,7 +13,6 @@ module Boggle = struct
 
   type t = char array array [@@deriving sexp]
 
-  (* To be implemented later -- create a board from pre-defined "board" string *)
   let create_board ?(init : string = "") ~(dist : Ngram.t) (size : int) : t =
     let len = String.length init in
     match len with
@@ -45,7 +44,7 @@ module Boggle = struct
     let rec get_hint_from_words (words : string list) : (string * string) Lwt.t
         =
       match words with
-      | [] -> Lwt.return ("", "No more words to find!")
+      | [] -> Lwt.return ("", "No more words to hint!")
       | _ -> (
           let word = List.nth_exn words (Random.int (List.length words)) in
           let* def = Dictionary.get_definition word in
@@ -136,8 +135,8 @@ module Boggle = struct
             dfs [] acc dict Pair_set.empty i j))
     |> Set.to_list
 
-  let print_board (board : t) : unit =
-    let size = Array.length board in
+  let string_of_t (board : t) : string =
+    let size = Array.length board.(0) in
     let board_list =
       board |> List.of_array
       |> List.map ~f:(fun row ->
@@ -153,9 +152,11 @@ module Boggle = struct
           "\n";
         ]
     in
-
-    List.fold board_list ~init:() ~f:(fun _ row ->
-        Stdio.print_string s;
-        Stdio.printf "| %s |\n" (String.concat row ~sep:" | "));
-    Stdio.print_string s
+    (* let rows =  *)
+    List.fold board_list ~init:"" ~f:(fun acc row ->
+        (* Stdio.print_string s; *)
+        (* Stdio.printf "| %s |\n" (String.concat row ~sep:" | ")); *)
+        acc ^ s ^  "| " ^ String.concat row ~sep:" | " ^ " |\n"
+    ) ^ s
+    (* Stdio.print_string s *)
 end

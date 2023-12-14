@@ -8,5 +8,5 @@ module Boggle: sig
   val solve: t -> Trie.t -> string list (* find all words on the board *)
   val get_hint: string list -> string list -> (string * string) Lwt.t (* given a list of all the words on the board from the solver, and a list of words the user has already found, returns a pair of strings representing a new word and the hint for it *)
   val compute_scores: string list -> string list list -> (string * int * string) list list (* given a list of all possible words on the board, a list of list of user inputs, compute the score for each player's word and an explanation of the scoring for each word *)
-  val print_board: t -> unit
+  val string_of_t: t -> string
 end
