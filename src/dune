@@ -30,8 +30,16 @@
  (modules data)
  (libraries core trie ngram))
 
-(executable 
+(executable
  (name aplusproject)
  (modules aplusproject)
- (preprocess (pps ppx_jane))
+ (preprocess
+  (pps ppx_jane))
  (libraries core game core_unix.command_unix))
+
+(executable
+ (name server)
+ (modules server)
+ (preprocess
+  (pps ppx_jane))
+ (libraries core core_unix.command_unix dream boggle data))
