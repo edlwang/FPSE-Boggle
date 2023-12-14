@@ -43,3 +43,17 @@
  (preprocess
   (pps ppx_jane))
  (libraries core core_unix.command_unix dream boggle data))
+
+(executable
+ (name client)
+ (modules client)
+ (preprocess
+  (pps ppx_jane))
+ (libraries
+  core
+  core_unix.command_unix
+  cohttp
+  cohttp-lwt-unix
+  lwt
+  boggle
+  game))

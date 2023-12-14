@@ -6,7 +6,12 @@ An implementation of Boggle for the Functional Programming in Software Engineeri
 
 1. Install dependencies using `opam install . --deps-only --working-dir`
 2. Build the program using `dune build`
-3. Run the program using `dune exec -- ./src/aplusproject.exe`
+3. Run the program 
+
+    1. Use `dune exec -- ./src/aplusproject.exe` for the standalone program version.
+    2. For client server, run the server with `dune exec -- ./src/server.exe` and run the client with `dune exec --./src/client.exe name http://localhost:8080`
+    3. For both programs, additional flags can be found using `-h`
+
 4. Test the program using `dune test` (NOTE: dictionary_tests is implemented but currently stalls all tests due to potential rate limiting issues. As a result, they are commented out for now)
 
 ## Overview

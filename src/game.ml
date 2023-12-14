@@ -4,6 +4,9 @@ open Boggle
 open Core
 
 module type Game = sig
+  val print_instructions : unit -> unit
+  val get_user_words_async : string list -> string list Lwt.t
+  val calculate_score : (string * int * string) list -> int
   val run : unit -> unit
 end
 
@@ -48,7 +51,7 @@ module Make_game (Config : Game_config) : Game = struct
     Stdio.printf "- !hint : obtain a hint (there are no penalties!)\n";
     Stdio.print_endline ""
 
-  let get_user_words_async all_board_words : string list =
+  let get_user_words_async (all_board_words : string list) : string list Lwt.t =
     let open Lwt.Syntax in
     let words = ref [] in
     let get_input =
@@ -79,7 +82,6 @@ module Make_game (Config : Game_config) : Game = struct
       let* lst = process (Lwt.return []) "" in
       Lwt.return (lst |> List.rev)
     in
-
     match Config.time with
     | Some t ->
         let timeout =
@@ -88,9 +90,8 @@ module Make_game (Config : Game_config) : Game = struct
           let _ = Lwt_io.(flush stdout) in
           Lwt.return !words
         in
-        let result = Lwt.pick [ get_input; timeout ] in
-        Lwt_main.run result
-    | None -> Lwt_main.run get_input
+        Lwt.pick [ get_input; timeout ]
+    | None -> get_input
 
   let calculate_score (word_scores : (string * int * string) list) : int =
     List.fold word_scores ~init:0 ~f:(fun acc (_, score, _) -> acc + score)
@@ -114,7 +115,7 @@ module Make_game (Config : Game_config) : Game = struct
            | Some t -> Stdio.printf "You have %d seconds to find words\n" t
            | None -> Stdio.printf "You have unlimited time to find words\n");
           Stdio.Out_channel.flush Stdio.stdout;
-          get_user_words_async all_board_words :: acc)
+          Lwt_main.run (get_user_words_async all_board_words) :: acc)
       |> List.rev
     in
     Stdio.print_endline "\n";
