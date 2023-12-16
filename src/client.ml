@@ -105,22 +105,25 @@ let handle_newgame (board : Boggle.t) (time : int) (name : string)
   | _ -> Lwt.return ()
 
 let main (name : string) (server : string) : _ =
-  Lwt_main.run
-    (Stdio.printf "Hello %s! Connecting to %s\n%!" name server;
-     let* _, body =
-       Client.call `GET
-         (Uri.of_string @@ server ^ "/game/" ^ name)
-         ~body:(Cohttp_lwt.Body.of_string name)
-     in
-     let* body_str = body |> Cohttp_lwt.Body.to_string in
-     match Sexp.of_string body_str with
-     | Sexp.List [ Sexp.Atom "newgame"; Sexp.List [ board_sexp; time_sexp ] ] ->
-         let board = Boggle.t_of_sexp board_sexp in
-         let time = Int.t_of_sexp time_sexp in
-         handle_newgame board time name server
-     | Sexp.List [ Sexp.Atom "results"; Sexp.List res ] ->
-         handle_result server res
-     | _ -> Lwt.return ())
+  try
+    Lwt_main.run
+      (Stdio.printf "Hello %s! Connecting to %s\n%!" name server;
+       let* _, body =
+         Client.call `GET
+           (Uri.of_string @@ server ^ "/game/" ^ name)
+           ~body:(Cohttp_lwt.Body.of_string name)
+       in
+       let* body_str = body |> Cohttp_lwt.Body.to_string in
+       match Sexp.of_string body_str with
+       | Sexp.List [ Sexp.Atom "newgame"; Sexp.List [ board_sexp; time_sexp ] ]
+         ->
+           let board = Boggle.t_of_sexp board_sexp in
+           let time = Int.t_of_sexp time_sexp in
+           handle_newgame board time name server
+       | Sexp.List [ Sexp.Atom "results"; Sexp.List res ] ->
+           handle_result server res
+       | _ -> Lwt.return ())
+  with _ -> Stdio.print_endline "Server is down!"
 
 let command =
   Command.basic ~summary:"\nStart a Boggle client!"
