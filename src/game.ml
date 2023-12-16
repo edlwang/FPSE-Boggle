@@ -1,8 +1,9 @@
 (* Module type of Game that contains a single function to run the game *)
 
+[@@@coverage exclude_file] (* I'm not really sure why this doesn't work *)
+
 open Boggle
 open Core
-[@@@coverage exclude_file]
 
 module type Game = sig
   val print_instructions : unit -> unit
@@ -152,10 +153,10 @@ module Make_game (Config : Game_config) : Game = struct
             | _ -> Stdio.printf "- %s\t\t(%d)\n" word score);
         Stdio.print_endline "");
 
-    Stdio.printf "Here are the top scoring words of the solution!\n\n";
+    Stdio.printf "Here are the top 30 scoring words of the solution!\n\n";
     Stdio.printf "%s\n"
       ( Boggle.solve board Data.trie
       |> List.sort ~compare:(fun s1 s2 -> String.(length s2 - length s1))
-      |> fun l -> List.take l 30 |> String.concat ~sep:" " );
+      |> fun l -> List.take l 30 |> String.concat ~sep:", " );
     Stdio.Out_channel.flush Stdio.stdout
 end

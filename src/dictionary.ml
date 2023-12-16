@@ -8,6 +8,7 @@ module Dictionary = struct
     match (Sys_unix.file_exists filepath, Sys_unix.is_directory filepath) with
     | `Yes, `No -> In_channel.read_lines filepath
     | _ -> []
+  [@@coverage off]
 
   let get_definition (word : string) : string option Lwt.t =
     Client.get
@@ -34,7 +35,4 @@ module Dictionary = struct
         in
         Some definition
     | _ -> Lwt.return_none
-
-  let get_definitions (l : string list) : string option Lwt.t list =
-    List.map l ~f:get_definition
 end

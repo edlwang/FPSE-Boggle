@@ -8,9 +8,9 @@ An implementation of Boggle for the Functional Programming in Software Engineeri
 2. Build the program using `dune build`
 3. Run the program 
 
-    1. Use `dune exec -- ./src/aplusproject.exe` for the standalone program version.
-    2. For client server, run the server with `dune exec -- ./src/server.exe` and run the client with `dune exec -- ./src/client.exe name http://localhost:8080`
-    3. For both programs, additional flags can be found using `-h`
+    1. Use `dune exec -- ./src/aplusproject.exe [--board-size BOARD-SIZE] [--num-players NUM-PLAYERS]` for the standalone program version.
+    2. For client server, run the server with `dune exec -- ./src/server.exe [--time-limit TIME] [--board-size BOARD-SIZE]` and run the client with `dune exec -- ./src/client.exe <name> http://localhost:8080`
+    3. For standalone and server executables, you can specify the turn time limit with --time-limit <num seconds> programs, additional flags can be found using `-h`
 
 4. Test the program using `dune test` (NOTE: dictionary_tests is implemented but currently stalls all tests due to potential rate limiting issues. As a result, they are commented out for now)
 
@@ -51,83 +51,72 @@ We plan to use Cohttp in order to pull data down from the dictionary API and Yoj
 ## Mock Use
 
 We are using the > symbol to denote what the user is inputting in the app
-
 ```
-$ ./boggle.exe --num-players 2 --time-limit 180
+$ dune exec -- ./src/aplusproject.exe --time-limit 60 --board-size 5
+Welcome to Boggle                   
 
---------------------------------------------------
------------- Game Start Instructions -------------
---------------------------------------------------
+Number of players: 1
+Time limit: 60
+
+Instructions (source: https://en.wikipedia.org/wiki/Boggle):
+1. Each player will take turns finding words on the board
+2. Words must be at least three letters long
+3. Each letter after the first must be a horizontal, vertical, or diagonal neighbor of the one before it
+4. No letter square may be used more than once within a single word
+5. No capitalized or hyphenated words are allowed
+6. The scoring is calculated from the length of the word:
+    0-2 letters: 0 pts
+    3-4 letters: 1 pt
+    5 letters: 2 pts
+    6 letters: 3 pts
+    7 letters: 5 pts
+    8+ letters: 7 pts
 
 During your turn, the following commands can be used
 
 - !done : end turn early
 - !hint : obtain a hint (there are no penalties!)
 
-+---+---+---+---+
-| I | T | P | E |
-+---+---+---+---+
-| R | M | A | Y |
-+---+---+---+---+
-| S | R | E | H |
-+---+---+---+---+
-| T | U | B | N |
-+---+---+---+---+
++---+---+---+---+---+
+| i | s | h | u | r |
++---+---+---+---+---+
+| l | i | z | o | g |
++---+---+---+---+---+
+| i | t | o | m | i |
++---+---+---+---+---+
+| z | o | s | i | d |
++---+---+---+---+---+
+| e | s | c | t | l |
++---+---+---+---+---+
 
---------------------------------------------------
------------------- User Gameplay -----------------
---------------------------------------------------
-
-Enter Player 1s Words (type !done to end turn):
-Hit enter to start
->
-You have 3m0s to find as many words as possible
-> pet
-> tube
-> hay
-> tamers
-> rim
+Enter Player 1's Words (type !done to end turn):
+Hit enter to start:     
+You have 60 seconds to find words
+> room
+> rooms
+> midig
+> !hint
+Hint: A thin skin membrane that covers and moves over an eye.
+> eyelid
+> lid
+You got the hint!
 > !done
 
-Enter Player 2s Words (type !done to end turn):
-Hit enter to start
->
-You have 3m0s to find as many words as possible
-> timer
-> yhn
-> may
-> !hint
-    a long, hollow cylinder
-> tube
-    You got the hint!
 
---------------------------------------------------
------------- Final Results and Scoring -----------
---------------------------------------------------
+Player 1 wins with the most points!
 
-Your time has run up!
+Player 1 Score: 3
+- room          (1)
+- rooms         (2)
+- midig         (Not a word on the board)
+- eyelid        (Not a word on the board)
+- lid           (1)
 
-Player 1 Wins!
+Here are the top scoring words of the solution!
 
-Player 1 Score: 5
-- pet       (invalid)
-- tube      (duplicate)
-- hay       (1)
-- tamers    (3)
-- rim       (1)
-
-Player 2 Score: 3
-- tube      (duplicate)
-- timer     (2)
-- yhn       (invalid)
-- may       (1)
-
-Players found 6 words out of 299 words for 9 points out of 425.
-Here are some of the top scoring words:
-- IMPARTS
-- SURBEAT
-- TRIMERA
-...
+idiotish, idiotize, moistish, scotize, sosoish, cossid, dimiss, huzoor, iotize, itoism, itoist, limoid, 
+otiose, ugroid, coost, cosse, dicot, digor, dimit, groom, groot, idiom, idiot, idism, idist, mohur, moist,
+moose, moost, ogmic
 ```
 
 ## Implementation Order

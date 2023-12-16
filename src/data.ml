@@ -7,7 +7,7 @@ open Ngram
     In a later iteration there will be an according error message when the module is used improperly
 *)
 
-let words = "words.txt" |> In_channel.read_lines
+let words = "dictionary.txt" |> In_channel.read_lines
 let distribution = Ngram.make_distribution words
 
 let trie =
