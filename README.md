@@ -8,9 +8,10 @@ An implementation of Boggle for the Functional Programming in Software Engineeri
 2. Build the program using `dune build`
 3. Run the program 
 
-    1. Use `dune exec -- ./src/aplusproject.exe [--board-size BOARD-SIZE] [--num-players NUM-PLAYERS]` for the standalone program version.
-    2. For client server, run the server with `dune exec -- ./src/server.exe [--time-limit TIME] [--board-size BOARD-SIZE]` and run the client with `dune exec -- ./src/client.exe <name> http://localhost:8080`
-    3. For standalone and server executables, you can specify the turn time limit with --time-limit <num seconds> programs, additional flags can be found using `-h`
+    1. Use `dune exec -- ./src/aplusproject.exe [--time-limit TIME-LIMIT] [--board-size BOARD-SIZE] [--num-players NUM-PLAYERS]` for the standalone game.
+    2. Use `dune exec -- ./src/aplusproject.exe [--solve BOARD]` to input a board as a string with no spaces and get all possible solutions. (The board in "Overview" would be represented as "itpermaysrehtubn")
+    3. For client server, run the server with `dune exec -- ./src/server.exe [--time-limit TIME] [--board-size BOARD-SIZE]` and run the client with `dune exec -- ./src/client.exe <name> http://localhost:8080`
+    4. additional flags can be found using `-h` with the executable
 
 4. Test the program using `dune test` (NOTE: dictionary_tests is implemented but currently stalls all tests due to potential rate limiting issues. As a result, they are commented out for now)
 
@@ -44,9 +45,12 @@ We plan on implementing the functionality of playing Boggle using dictionary API
 
 To extend the complexity of our project, we plan to make it possible for multiple players to compete to see who gets the most words possible and implement automatic scoring. We also want to allow users to ask for different types of hints for words that they haven't gotten yet (starts with this letter, look at this part of the board, this word's definition is _, etc). We could also control the generation of the board using more complicated methods such as using N-grams or English letter distributions to make the board more playable. 
 
+### Disclaimer: 
+words that are considered valid are derived from the dictionary.txt file in the top level directory. We have used a file with many words in the english language (370105 words), but there may be words missing, or words included that are real english words. Feel free to add and remove words in the file, or replace it entirely with your desired Boggle dictionary.
+
 ## Libraries
 
-We plan to use Cohttp in order to pull data down from the dictionary API and Yojson to parse the JSON response. We are also using Lwt to handle promises 
+We plan to use Cohttp in order to pull data down from the dictionary API and Yojson to parse the JSON response. We are also using Lwt to handle promises.
 
 ## Mock Use
 
@@ -135,6 +139,6 @@ At this point the game should be fully functional without async waiting/timer pa
 - Asynchronous waiting - Mason
 
 Reach Goals:
-- Server running the game with two players connecting through terminal to play at the same time
-- Frontend using ReScript
-- Use different language dictionaries to generate the boards
+- Server running the game with two players connecting through terminal to play at the same time (Done)
+- Frontend using ReScript (Not done)
+- Use different language dictionaries to generate the boards (Done - Users can just input different language dictionary file)

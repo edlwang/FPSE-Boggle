@@ -45,7 +45,7 @@
  (modules aplusproject)
  (preprocess
   (pps ppx_jane))
- (libraries core game core_unix.command_unix))
+ (libraries core game core_unix.command_unix boggle))
 
 (executable
  (name server)

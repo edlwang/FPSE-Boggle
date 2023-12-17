@@ -2,12 +2,13 @@ open Core
 open Trie
 open Ngram
 
-(*
-    You must run in the '.../FPSE-Boggle/' directory to use the Data module!
-    In a later iteration there will be an according error message when the module is used improperly
-*)
+let words =
+  try "dictionary.txt" |> In_channel.read_lines
+  with _ ->
+    failwith
+      " You must run in the '.../FPSE-Boggle/' directory to use the Data \
+       module!"
 
-let words = "dictionary.txt" |> In_channel.read_lines
 let distribution = Ngram.make_distribution words
 
 let trie =

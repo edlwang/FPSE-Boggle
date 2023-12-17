@@ -156,7 +156,7 @@ module Boggle = struct
     List.fold board_list ~init:"" ~f:(fun acc row ->
         (* Stdio.print_string s; *)
         (* Stdio.printf "| %s |\n" (String.concat row ~sep:" | ")); *)
-        acc ^ s ^  "| " ^ String.concat row ~sep:" | " ^ " |\n"
-    ) ^ s
-    (* Stdio.print_string s *)
+        acc ^ s ^ "| " ^ String.concat row ~sep:" | " ^ " |\n")
+    ^ s
+  (* Stdio.print_string s *)
 end

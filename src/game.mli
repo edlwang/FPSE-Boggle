@@ -29,3 +29,5 @@ end
    by extending the Game_config module type and updating the functor
 *)
 module Make_game (_ : Game_config) : Game
+
+val solve : string -> unit

@@ -61,6 +61,7 @@ module Make_game (Config : Game_config) : Game = struct
         let _ = Lwt_io.print "> " in
         let _ = Lwt_io.(flush stdout) in
         let* line = Lwt_io.(read_line stdin) in
+        let line = line |> String.lowercase in
         let* acc_str = acc in
         match line with
         | word when String.(word = "!done") -> Lwt.return acc_str
@@ -160,3 +161,19 @@ module Make_game (Config : Game_config) : Game = struct
       |> fun l -> List.take l 30 |> String.concat ~sep:", " );
     Stdio.Out_channel.flush Stdio.stdout
 end
+
+let solve (board : string) : unit =
+  let board = String.lowercase board in
+  let size = board |> String.length |> Int.to_float |> sqrt in
+  match Float.is_integer size with
+  | true ->
+      let size = Int.of_float size in
+      let board =
+        Boggle.create_board ~init:board ~dist:Data.distribution size
+      in
+      let words = Boggle.solve board Data.trie in
+      Stdio.printf "\nHere is the board you input:\n\n%s\n"
+      @@ Boggle.string_of_t board;
+      Stdio.printf "Below are all the possible words:\n\n";
+      Stdio.printf "%s\n" @@ String.concat words ~sep:", "
+  | false -> Stdio.print_string "You must input a valid board!"
