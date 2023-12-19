@@ -38,7 +38,6 @@ module Boggle = struct
         Array.init size ~f:(fun i -> Array.of_list @@ List.nth_exn init_list i)
     | _ -> failwith "Board not valid for desired size"
 
-  (* Possibly add more efficient search, removing found words from search space *)
   let get_hint (all_words : string list) (user_words : string list) :
       (string * string) Lwt.t =
     let rec get_hint_from_words (words : string list) : (string * string) Lwt.t
@@ -152,11 +151,7 @@ module Boggle = struct
           "\n";
         ]
     in
-    (* let rows =  *)
     List.fold board_list ~init:"" ~f:(fun acc row ->
-        (* Stdio.print_string s; *)
-        (* Stdio.printf "| %s |\n" (String.concat row ~sep:" | ")); *)
         acc ^ s ^ "| " ^ String.concat row ~sep:" | " ^ " |\n")
     ^ s
-  (* Stdio.print_string s *)
 end

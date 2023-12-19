@@ -5,7 +5,7 @@
     and then call the run function in the resulting module
 *)
 
-(* Module type of Game that contains a single function to run the game *)
+(* Module type of Game that contains functions to run the game *)
 module type Game = sig
   val print_instructions : unit -> unit
   val get_user_words_async : string list -> string list Lwt.t
@@ -30,4 +30,5 @@ end
 *)
 module Make_game (_ : Game_config) : Game
 
+(* function to take in a user inputted board as a string and print out the board's solutions *)
 val solve : string -> unit

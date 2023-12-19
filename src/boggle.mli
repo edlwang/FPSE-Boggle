@@ -19,4 +19,5 @@ module Boggle : sig
   (* given a list of all possible words on the board, a list of list of user inputs, compute the score for each player's word and an explanation of the scoring for each word *)
 
   val string_of_t : t -> string
+  (* Convert a type t board into a "pretty" string to be printed to a user *)
 end

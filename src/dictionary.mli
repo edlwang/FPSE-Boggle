@@ -1,4 +1,4 @@
-(* This module is a wrapper to interact with the dictionary API using Cohttp*)
+(* This module is a wrapper to interact with the dictionary API using Cohttp *)
 module Dictionary : sig
   val get_all_words :
     string ->

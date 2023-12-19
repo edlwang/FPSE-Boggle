@@ -1,4 +1,4 @@
-(* Module type of Game that contains a single function to run the game *)
+(* Module type of Game that contains functions to run the game *)
 
 [@@@coverage exclude_file] (* I'm not really sure why this doesn't work *)
 
@@ -81,7 +81,6 @@ module Make_game (Config : Game_config) : Game = struct
               process (Lwt.return (word :: acc_str)) ""
             else process (Lwt.return (word :: acc_str)) hint
       in
-      (* CLEAN UP SYNTAX FOR MONAD PIPE LIST.REV *)
       let* lst = process (Lwt.return []) "" in
       Lwt.return (lst |> List.rev)
     in

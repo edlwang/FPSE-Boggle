@@ -15,7 +15,7 @@
                               'd' (is_word=true)
 *)
 module Trie : sig
-  type t [@@deriving sexp]
+  type t
 
   val empty : unit -> t (* Create empty trie *)
   val insert : t -> word:string -> t (* Inserts a word into the trie *)
@@ -23,7 +23,8 @@ module Trie : sig
   val is_word :
     t -> word:string -> bool (* Check if a given word exists in the trie *)
 
-  val is_endpoint : t -> bool
+  val is_endpoint : t -> bool (* Check whether the given node is an endpoint of a word *)
+
   val get_child : t -> char -> t option
   (* return the child of the root node that char maps to (wrapped in Some) if it exists, else None *)
 end
