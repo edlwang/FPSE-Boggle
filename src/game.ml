@@ -88,7 +88,7 @@ module Make_game (Config : Game_config) : Game = struct
     | Some t ->
         let timeout =
           let* _ = Lwt_unix.sleep (Int.to_float t) in
-          let _ = Lwt_io.printl "\nYour time has run up!" in
+          let _ = Lwt_io.printl "\n\nYour time has run up!\n" in
           let _ = Lwt_io.(flush stdout) in
           Lwt.return !words
         in

@@ -43,7 +43,7 @@ let handle_result (server : string) (res : Sexp.t list) : unit Lwt.t =
     |> fun (winners, _) -> List.rev winners
   in
   if List.length winners = 1 then
-    Stdio.printf "Player %s is currently winning with the most points!\n"
+    Stdio.printf "\nPlayer %s is currently winning with the most points!\n"
       (List.hd_exn winners)
   else
     Stdio.printf "Players %s tie for the most points!\n"
@@ -64,7 +64,7 @@ let handle_result (server : string) (res : Sexp.t list) : unit Lwt.t =
   Stdio.printf "%s\n"
     ( all_board_words
     |> List.sort ~compare:(fun s1 s2 -> String.(length s2 - length s1))
-    |> fun l -> List.take l 30 |> String.concat ~sep:" " );
+    |> fun l -> List.take l 30 |> String.concat ~sep:", " );
   Stdio.Out_channel.flush Stdio.stdout;
   Lwt.return ()
 
@@ -107,7 +107,7 @@ let handle_newgame (board : Boggle.t) (time : int) (name : string)
 let main (name : string) (server : string) : _ =
   try
     Lwt_main.run
-      (Stdio.printf "Hello %s! Connecting to %s\n%!" name server;
+      (Stdio.printf "\nHello %s! Connecting to %s\n%!" name server;
        let* _, body =
          Client.call `GET
            (Uri.of_string @@ server ^ "/game/" ^ name)
