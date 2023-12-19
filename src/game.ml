@@ -175,4 +175,4 @@ let solve (board : string) : unit =
       @@ Boggle.string_of_t board;
       Stdio.printf "Below are all the possible words:\n\n";
       Stdio.printf "%s\n" @@ String.concat words ~sep:", "
-  | false -> Stdio.print_string "You must input a valid board!"
+  | false -> Stdio.print_string "\nYou must input a valid board!\n\n"
