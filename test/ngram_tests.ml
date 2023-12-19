@@ -8,8 +8,11 @@ let test_get_random _ =
   assert_equal (List.mem (Ngram.get_random d) [ 'a'; 'b'; 'c' ]) true
 
 let test_get_next _ =
+  let alpha = "abcdefghijklmnopqrstuvwxyz" in
   let d = Ngram.make_distribution [ "a"; "aa"; "aaa" ] in
   assert_equal (Ngram.get_next d 'a') 'a';
+  let d = Ngram.make_distribution [] in
+  assert_equal true @@ String.contains alpha (Ngram.get_next d 'a');
   let d = Ngram.make_distribution [ "apple"; "banana"; "pear" ] in
   assert_equal (List.mem (Ngram.get_next d 'a') [ 'p'; 'n'; 'r' ]) true;
   assert_equal (Ngram.get_next d 'b') 'a';
@@ -18,4 +21,9 @@ let test_get_next _ =
   assert_equal (Ngram.get_next d 'n') 'a';
   assert_equal (List.mem (Ngram.get_next d 'p') [ 'p'; 'l'; 'e' ]) true
 
-let ngram_tests = "N-gram Tests" >::: [ "Test get_random" >:: test_get_random; "Test get_next" >:: test_get_next ]
+let ngram_tests =
+  "N-gram Tests"
+  >::: [
+         "Test get_random" >:: test_get_random;
+         "Test get_next" >:: test_get_next;
+       ]

@@ -1,4 +1,4 @@
-(library 
+(library
  (name boggle_tests)
  (modules boggle_tests)
  (libraries ounit2 core boggle trie))
@@ -8,18 +8,17 @@
  (modules dictionary_tests)
  (libraries ounit2 core dictionary))
 
-(library 
+(library
  (name ngram_tests)
  (modules ngram_tests)
  (libraries ounit2 ngram))
 
-(library 
+(library
  (name trie_tests)
  (modules trie_tests)
  (libraries ounit2 trie))
 
-(test 
+(test
  (name tests)
  (modules tests)
  (libraries ounit2 core boggle_tests dictionary_tests ngram_tests trie_tests))
-

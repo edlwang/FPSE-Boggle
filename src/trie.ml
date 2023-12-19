@@ -3,8 +3,7 @@ open Core
 module Trie = struct
   module CharMap = Map.Make (Char)
 
-  (* sexp doesn't work here*)
-  type t = { is_word : bool; children : t CharMap.t } [@@deriving sexp]
+  type t = { is_word : bool; children : t CharMap.t }
 
   let empty () : t = { is_word = false; children = CharMap.empty }
 
@@ -24,7 +23,7 @@ module Trie = struct
           let children = Map.set trie.children ~key:c ~data:(helper next tl) in
           { is_word = trie.is_word; children }
     in
-    helper trie @@ String.to_list word (* call helper *)
+    helper trie @@ String.to_list word
 
   let is_word (trie : t) ~(word : string) : bool =
     let rec helper (trie : t) (word : char list) : bool =

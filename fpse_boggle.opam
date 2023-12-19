@@ -20,6 +20,7 @@ depends: [
   "ppx_jane" {>= "0.16.0"}
   "ppx_deriving" {>= "5.2.1"}
   "bisect_ppx" {>= "2.8.3"}
+  "dream" {>= "1.0.0~alpha5"}
   "odoc" {with-doc}
 ]
 build: [

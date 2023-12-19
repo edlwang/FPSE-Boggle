@@ -1,9 +1,14 @@
-(* Module type of Game that contains a single function to run the game *)
+(* Module type of Game that contains functions to run the game *)
+
+[@@@coverage exclude_file] (* I'm not really sure why this doesn't work *)
 
 open Boggle
 open Core
 
 module type Game = sig
+  val print_instructions : unit -> unit
+  val get_user_words_async : string list -> string list Lwt.t
+  val calculate_score : (string * int * string) list -> int
   val run : unit -> unit
 end
 
@@ -48,7 +53,7 @@ module Make_game (Config : Game_config) : Game = struct
     Stdio.printf "- !hint : obtain a hint (there are no penalties!)\n";
     Stdio.print_endline ""
 
-  let get_user_words_async all_board_words : string list =
+  let get_user_words_async (all_board_words : string list) : string list Lwt.t =
     let open Lwt.Syntax in
     let words = ref [] in
     let get_input =
@@ -56,6 +61,7 @@ module Make_game (Config : Game_config) : Game = struct
         let _ = Lwt_io.print "> " in
         let _ = Lwt_io.(flush stdout) in
         let* line = Lwt_io.(read_line stdin) in
+        let line = line |> String.lowercase in
         let* acc_str = acc in
         match line with
         | word when String.(word = "!done") -> Lwt.return acc_str
@@ -75,11 +81,9 @@ module Make_game (Config : Game_config) : Game = struct
               process (Lwt.return (word :: acc_str)) ""
             else process (Lwt.return (word :: acc_str)) hint
       in
-      (* CLEAN UP SYNTAX FOR MONAD PIPE LIST.REV *)
       let* lst = process (Lwt.return []) "" in
       Lwt.return (lst |> List.rev)
     in
-
     match Config.time with
     | Some t ->
         let timeout =
@@ -88,9 +92,8 @@ module Make_game (Config : Game_config) : Game = struct
           let _ = Lwt_io.(flush stdout) in
           Lwt.return !words
         in
-        let result = Lwt.pick [ get_input; timeout ] in
-        Lwt_main.run result
-    | None -> Lwt_main.run get_input
+        Lwt.pick [ get_input; timeout ]
+    | None -> get_input
 
   let calculate_score (word_scores : (string * int * string) list) : int =
     List.fold word_scores ~init:0 ~f:(fun acc (_, score, _) -> acc + score)
@@ -98,7 +101,7 @@ module Make_game (Config : Game_config) : Game = struct
   let run _ =
     print_instructions ();
     let board = Boggle.create_board ~dist:Data.distribution Config.size in
-    Boggle.print_board board;
+    Stdio.print_string @@ Boggle.string_of_t board;
     Stdio.print_endline "";
 
     let all_board_words = Boggle.solve board Data.trie in
@@ -114,7 +117,7 @@ module Make_game (Config : Game_config) : Game = struct
            | Some t -> Stdio.printf "You have %d seconds to find words\n" t
            | None -> Stdio.printf "You have unlimited time to find words\n");
           Stdio.Out_channel.flush Stdio.stdout;
-          get_user_words_async all_board_words :: acc)
+          Lwt_main.run (get_user_words_async all_board_words) :: acc)
       |> List.rev
     in
     Stdio.print_endline "\n";
@@ -150,10 +153,26 @@ module Make_game (Config : Game_config) : Game = struct
             | _ -> Stdio.printf "- %s\t\t(%d)\n" word score);
         Stdio.print_endline "");
 
-    Stdio.printf "Here are the top scoring words of the solution!\n\n";
+    Stdio.printf "Here are the top 30 scoring words of the solution!\n\n";
     Stdio.printf "%s\n"
       ( Boggle.solve board Data.trie
       |> List.sort ~compare:(fun s1 s2 -> String.(length s2 - length s1))
-      |> fun l -> List.take l 30 |> String.concat ~sep:" " );
+      |> fun l -> List.take l 30 |> String.concat ~sep:", " );
     Stdio.Out_channel.flush Stdio.stdout
 end
+
+let solve (board : string) : unit =
+  let board = String.lowercase board in
+  let size = board |> String.length |> Int.to_float |> sqrt in
+  match Float.is_integer size with
+  | true ->
+      let size = Int.of_float size in
+      let board =
+        Boggle.create_board ~init:board ~dist:Data.distribution size
+      in
+      let words = Boggle.solve board Data.trie in
+      Stdio.printf "\nHere is the board you input:\n\n%s\n"
+      @@ Boggle.string_of_t board;
+      Stdio.printf "Below are all the possible words:\n\n";
+      Stdio.printf "%s\n" @@ String.concat words ~sep:", "
+  | false -> Stdio.print_string "You must input a valid board!"

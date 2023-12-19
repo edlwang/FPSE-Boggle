@@ -1,5 +1,8 @@
-val words: string list
+(*
+   module to compute useful data structures based on the dictionary file
+   at build time rather than runtime
+*)
 
-val distribution: Ngram.Ngram.t
-
-val trie: Trie.Trie.t
+val words : string list
+val distribution : Ngram.Ngram.t
+val trie : Trie.Trie.t

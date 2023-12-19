@@ -3,35 +3,67 @@
  (modules boggle)
  (libraries core ngram trie dictionary)
  (preprocess
-  (pps ppx_jane)))
+  (pps ppx_jane bisect_ppx)))
 
 (library
  (name dictionary)
  (modules dictionary)
- (libraries core cohttp cohttp-lwt-unix lwt yojson core_unix.sys_unix))
+ (libraries core cohttp cohttp-lwt-unix lwt yojson core_unix.sys_unix)
+ (preprocess
+  (pps bisect_ppx)))
 
 (library
  (name game)
  (modules game)
- (libraries core stdio data boggle))
+ (libraries core stdio data boggle)
+ ; No coverage here as game is exclusively functions for the executable
+ ; (async code and IO), with the exception of 1 line, so no tests written
+ ; Note that bisect_ppx is not even preprocessed here, but code coverage is reported
+ )
 
 (library
  (name ngram)
  (modules ngram)
- (libraries core))
+ (libraries core)
+ (preprocess
+  (pps bisect_ppx)))
 
 (library
  (name trie)
  (modules trie)
- (libraries core))
+ (libraries core)
+ (preprocess
+  (pps bisect_ppx)))
 
 (library
  (name data)
  (modules data)
  (libraries core trie ngram))
 
-(executable 
+(executable
  (name aplusproject)
  (modules aplusproject)
- (preprocess (pps ppx_jane))
- (libraries core game core_unix.command_unix))
+ (preprocess
+  (pps ppx_jane))
+ (libraries core game core_unix.command_unix boggle))
+
+(executable
+ (name server)
+ (modules server)
+ (preprocess
+  (pps ppx_jane))
+ (libraries core core_unix.command_unix dream boggle data))
+
+(executable
+ (name client)
+ (modules client)
+ (preprocess
+  (pps ppx_jane))
+ (libraries
+  core
+  core_unix.command_unix
+  cohttp
+  cohttp-lwt-unix
+  lwt
+  boggle
+  game))

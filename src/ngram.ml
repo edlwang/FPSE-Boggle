@@ -41,16 +41,19 @@ module Ngram = struct
         update_with_word acc word)
 
   let get_random (distr : t) : char =
-    let total =
-      Map.fold distr ~init:0 ~f:(fun ~key:_ ~data acc ->
-          acc + (Map.find data '*' |> Option.value ~default:0))
-    in
-    let rand = Random.int total in
-    Map.fold_until distr ~init:(0, 'a')
-      ~f:(fun ~key ~data (acc, c) ->
-        let acc = acc + (Map.find data '*' |> Option.value ~default:0) in
-        if acc > rand then Stop key else Continue (acc, c))
-      ~finish:(fun (_, c) -> c)
+    let alpha = "abcdefghijklmnopqrstuvwxyz" in
+    if Map.length distr = 0 then String.nget alpha (Random.int 26)
+    else
+      let total =
+        Map.fold distr ~init:0 ~f:(fun ~key:_ ~data acc ->
+            acc + (Map.find data '*' |> Option.value ~default:0))
+      in
+      let rand = Random.int total in
+      Map.fold_until distr ~init:(0, 'a')
+        ~f:(fun ~key ~data (acc, c) ->
+          let acc = acc + (Map.find data '*' |> Option.value ~default:0) in
+          if acc > rand then Stop key else Continue (acc, c))
+        ~finish:(fun (_, c) -> c)
 
   let get_next (distr : t) (c : char) : char =
     match Map.find distr c with
@@ -64,5 +67,7 @@ module Ngram = struct
               let acc = acc + data in
               if acc > rand then Stop key else Continue (acc, c))
           ~finish:(fun (_, c) -> c)
+        (* Can't turn coverage off for just this line *)
+        (* coverage should be off above as impossible to reach ~finish when char is in map *)
     | None -> get_random distr
 end
