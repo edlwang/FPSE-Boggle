@@ -1,3 +1,5 @@
+(* See readme, tests stall due to potential rate limiting issues *)
+
 (* open OUnit2
    open Dictionary
    open Lwt.Syntax

@@ -18,7 +18,6 @@
  (libraries core stdio data boggle)
  ; No coverage here as game is exclusively functions for the executable
  ; (async code and IO), with the exception of 1 line, so no tests written
- ; Note that bisect_ppx is not even preprocessed here, but code coverage is reported
  )
 
 (library
