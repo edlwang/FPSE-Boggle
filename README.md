@@ -13,7 +13,7 @@ An implementation of Boggle for the Functional Programming in Software Engineeri
     3. For client server, run the server with `dune exec -- ./src/server.exe [--time-limit TIME] [--board-size BOARD-SIZE]` and run the client with `dune exec -- ./src/client.exe <name> http://localhost:8080`
     4. additional flags can be found using `-h` with the executable
 
-4. Test the program using `dune test` (NOTE: dictionary_tests is implemented but currently stalls all tests due to potential rate limiting issues. As a result, they are commented out for now)
+4. Test the program using `dune test` (NOTE: dictionary_tests is implemented but currently stalls all tests due to an unknown issue. When running on dune utop, the tests run fine. However, when dune test is run, the test runs forever. As a result, they are commented out)
 
 ## Overview
 
